@@ -5,4 +5,3 @@ An AI based note taking app focusing on simplicity.
  - *Frontend:* Remix
  - *Backend:* FastAPI
  - *Database:* PostgreSQL
-
