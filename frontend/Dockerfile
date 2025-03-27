@@ -5,6 +5,6 @@ WORKDIR /app
 COPY package*.json /app/
 RUN npm install
 
-COPY . /app
+COPY . .
 
-CMD ['npm','run','dev']
+CMD ["npm", "run", "dev", "--", "--port", "5173", "--host", "0.0.0.0"]

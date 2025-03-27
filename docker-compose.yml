@@ -2,12 +2,26 @@ services:
   backend:
     image: bynote-backend
     build: ./backend
+    pull_policy: never
     ports:
-      - 8080:8000
+      - 8000:8000
     develop:
       watch:
         - path: ./backend/app
           action: sync
           target: /app/app
         - path: ./backend/requirements.txt
+          action: rebuild
+  frontend:
+    image: bynote-frontend
+    pull_policy: never
+    build: ./frontend
+    ports:
+      - 5173:5173
+    develop:
+      watch:
+        - path: ./frontend/app
+          action: sync
+          target: /app/app
+        - path: ./frontend/package.json
           action: rebuild
