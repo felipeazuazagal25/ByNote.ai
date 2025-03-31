@@ -1,5 +1,9 @@
 FROM python:3.11.6-slim
 
+# Environment variables for logging
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONIOENCODING=UTF-8
+
 WORKDIR /app
 
 COPY requirements.txt requirements.txt

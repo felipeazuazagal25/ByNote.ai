@@ -2,11 +2,35 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
-from app.routes import notes as notes_router
-from app.schemas import notes as note_schemas
+from app.notes import notes_router
+from app.auth import auth_router
+import logging
+import sys
+
+
+# Console logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.StreamHandler(sys.stderr)
+    ],
+    force=True
+)
+logger = logging.getLogger("bynote")
+logger.setLevel(logging.INFO)
+
+
+
+
 
 app = FastAPI()
-app.include_router(notes_router.router)
+# Auth Routes
+app.include_router(auth_router)
+# App Routes
+app.include_router(notes_router)
+
 
 @app.get("/")
 async def root():

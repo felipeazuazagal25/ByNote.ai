@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+import uuid
 
 class NoteBase(BaseModel):
     title: str
