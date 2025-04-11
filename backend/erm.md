@@ -33,7 +33,7 @@ entity Session {
   updated_at: datetime
 }
 
-entity User_Activity {
+entity UserSession {
   *id: UUID <<PK>>
   --
   session_id: UUID
@@ -84,12 +84,15 @@ entity Notes {
   title: string
   text_content: text
   tiptap_content: JSON
-  project_id: UUID
   metadata: JSON
+  is_archived: text
+  is_shared: text
   is_starred: bool
   is_pinned: bool
   created_at: datetime
   updated_at: datetime
+
+  project_id: UUID
 }
 
 entity Note_Tags {
@@ -111,6 +114,8 @@ entity Notes_Versions {
   change_summary: string
   created_at: datetime
 }
+
+' --- UNTIL HERE ---
 
 entity Notes_Embeddings {
   *id: UUID <<PK>>
