@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from typing import TYPE_CHECKING, List
 from slugify import slugify
 from sqlalchemy.ext.hybrid import hybrid_property
+from pgvector.sqlalchemy import Vector
 
 if TYPE_CHECKING:
     from app.models import Project
@@ -53,6 +54,16 @@ class Note(Base):
     # Relationship to the NoteVersions table
     note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note",cascade="all, delete-orphan")
 
+    @property
+    def entity_type(self) -> str:
+        return "note"
+
+    def get_embedding_text(self) -> str:
+        return self.text_content
+
+    def get_entity_type(self) -> str:
+        return "note"
+
     def __repr__(self) -> str:
         return f"Note(id={self.id}, title={self.title}, content={self.content})"
     
@@ -76,3 +87,4 @@ class NoteVersions(Base):
 
     def __repr__(self) -> str:
         return f"NoteVersions(id={self.id}, version={self.version}, content={self.content})"
+

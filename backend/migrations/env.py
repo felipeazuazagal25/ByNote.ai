@@ -2,7 +2,9 @@
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import pool, Connection
+from sqlalchemy import text
+
 
 from alembic import context
 
@@ -14,7 +16,9 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.database import Base
-from app.models.notes import Note
+from app.models import *
+
+import pgvector
 
 
 # this is the Alembic Config object, which provides
@@ -39,6 +43,19 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+def do_run_migrations(connection: Connection) -> None:
+    connection.execute(text('CREATE EXTENSION IF NOT EXISTS vector'))
+    # Register the vector type with PostgreSQL dialect
+    connection.dialect.ischema_names['vector'] = pgvector.sqlalchemy.Vector
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
 
 
 def run_migrations_offline() -> None:
@@ -84,7 +101,8 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata
         )
 
         with context.begin_transaction():

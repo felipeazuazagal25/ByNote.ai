@@ -12,6 +12,10 @@ from app.auth.service import current_active_user
 from app.models.auth import User
 import uuid
 from app.models.project import Project
+from app.embeddings.service import EmbeddingService
+from app.embeddings.providers import BertEmbeddingProvider
+
+
 logger = logging.getLogger('bynote')
 
 async def create_note(note: NoteCreate, project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
@@ -25,13 +29,25 @@ async def create_note(note: NoteCreate, project_id: uuid.UUID | None = None, db:
         db_note = Note(**note.model_dump(), project_id=default_project_id)
     else:
         db_note = Note(**note.model_dump(), project_id=project_id)
+    
+    # Create embedding for the note
+    embedding_service = EmbeddingService(provider=BertEmbeddingProvider())
+    
     db.add(db_note)
     await db.commit()
     await db.refresh(db_note)
+    
+    try:
+        await embedding_service.create_embedding(db, db_note)
+    except Exception as e:
+        logger.error(f"Error creating embedding for note {db_note.id}: {e}")
+        raise HTTPException(status_code=500, detail="Error creating embedding for note")
+    
     return db_note
+    
 
 async def get_notes(db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> List[Note]:
-    result = await db.execute(select(Note).filter(Note.user_id == user.id))
+    result = await db.execute(select(Note).where(Note.project_id == user.default_project_id))
     notes = result.scalars().all()
     return notes
 

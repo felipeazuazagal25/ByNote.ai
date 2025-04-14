@@ -7,6 +7,7 @@ import uuid
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from typing import List, Optional
 from typing import TYPE_CHECKING
+from sqlalchemy import ForeignKey
 
 if TYPE_CHECKING:
     from app.models import Project
@@ -26,10 +27,14 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     # str] = mapped_column(nullable=False)
     #hashed_password: Mapped[str] = mapped_column(nullable=False)
     
+
     # Relationship to the Project table
-    projects: Mapped[List["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    projects: Mapped[List["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan", foreign_keys="Project.user_id")
     tags: Mapped[List["Tag"]] = relationship(back_populates="user", cascade="all, delete-orphan") 
     sessions: Mapped[List["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+
+    # Default project
+    default_project_id: Mapped[uuid.UUID] = mapped_column(default="")
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"
