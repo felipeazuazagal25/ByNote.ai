@@ -1,1 +1,4 @@
 CREATE DATABASE bynote;
+\c bynote;
+
+CREATE EXTENSION IF NOT EXISTS vector;

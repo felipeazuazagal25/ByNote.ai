@@ -2,10 +2,14 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
-from app.notes import notes_router
-from app.auth import auth_router
 import logging
 import sys
+
+# Importing routers
+from app.notes import notes_router
+from app.auth import auth_router
+from app.projects import projects_router
+from app.tags import tags_router
 
 
 # Console logging
@@ -22,14 +26,13 @@ logger = logging.getLogger("bynote")
 logger.setLevel(logging.INFO)
 
 
-
-
-
 app = FastAPI()
 # Auth Routes
 app.include_router(auth_router)
 # App Routes
 app.include_router(notes_router)
+app.include_router(projects_router)
+app.include_router(tags_router)
 
 
 @app.get("/")

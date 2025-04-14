@@ -1,15 +1,19 @@
 from pydantic import BaseModel
 from datetime import datetime
 import uuid
+from typing import Optional, List
 
 class NoteBase(BaseModel):
     title: str
-    content: str
+    text_content: str
+    rich_content: dict
+    is_archived: bool
+    is_shared: bool
+    is_starred: bool
+    is_pinned: bool
     
-class NoteOut(NoteBase):
-    id: int
-    created_at: datetime
-    updated_at: datetime
+class NoteMinimal(NoteBase):
+    id: uuid.UUID
 
     class Config:
         from_attributes = True
@@ -19,3 +23,17 @@ class NoteCreate(NoteBase):
 
 class NoteUpdate(NoteBase):
     pass
+
+class NoteOut(NoteBase):
+    id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+
+    tags: Optional[List["TagMinimal"]] = []
+
+    class Config:
+        from_attributes = True
+
+
+from app.tags.schemas import TagMinimal
+NoteOut.model_rebuild()

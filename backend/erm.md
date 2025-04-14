@@ -261,22 +261,16 @@ Tags ||--o{ Task_Tags : "labels"
 ' Project relationships:
 Project ||--o{ Notes : "contains"
 Project ||--o{ Tasks : "has many"
-Project ||--o{ AI_Text_Suggestions : "associates"
-Project ||--o{ AI_Action_Suggestions : "associates"
 Project ||--o{ Project_Tags : "tagged by"
 
 ' Notes relationships:
 Notes ||--o{ Notes_Versions : "has versions"
 Notes ||--o{ Notes_Embeddings : "has embedding"
-Notes ||--o{ AI_Text_Suggestions : "triggers"
-Notes ||--o{ AI_Action_Suggestions : "triggers"
 Notes ||--o{ Note_Tags : "tagged by"
 
 ' Tasks relationships:
 Tasks ||--o{ SubTasks : "contains"
 Tasks ||--o{ Task_Versions : "has versions"
-Tasks ||--o{ AI_Text_Suggestions : "triggers"
-Tasks ||--o{ AI_Action_Suggestions : "triggers"
 Tasks ||--o{ Task_Tags : "tagged by"
 Tasks ||--o{ Task_Embeddings : "has embedding"
 

@@ -4,7 +4,7 @@ from fastapi_users.authentication import (AuthenticationBackend,
                                           BearerTransport,
                                           JWTStrategy)
 from app.models.auth import User
-from app.dependencies import get_db
+from app.dependencies import get_db, get_db_session
 from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
@@ -15,6 +15,10 @@ from uuid import UUID
 import logging
 import random
 import string
+from typing import TYPE_CHECKING
+from app.models import Project
+
+    
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +45,16 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
         return stored_code == token
     
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+        db = await get_db_session()  # Get the database session
+        try:
+            await create_default_project(user, db)  # Pass the db session to your function
+            print(f"User {user.id} has registered.")
+        finally:
+            await db.close()
 
     async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
         print(f"User {user.id} has forgot their password.")
+        
 
     # Called when a user requests a verification token
     async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None) -> dict:
@@ -110,6 +120,11 @@ current_active_user = fastapi_users.current_user(active=True)
 
 
 
-        
+async def create_default_project(user: User, db: AsyncSession) -> Project:
+    db_project = Project(name="Inbox", description="Inbox", is_archived=False, is_shared=False, ui_color="#000000", ui_icon="🔍", ui_theme="light", ui_font="sans-serif", user_id=user.id)
+    db.add(db_project)
+    await db.commit()
+    await db.refresh(db_project)
+    return db_project       
         
         

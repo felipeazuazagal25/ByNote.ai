@@ -24,7 +24,7 @@ class Session(Base):
     user: Mapped["User"] = relationship(back_populates="sessions")
 
     # Relationship to the UserSession table
-    user_sessions: Mapped[List["UserSession"]] = relationship(back_populates="session")
+    user_sessions: Mapped[List["UserSession"]] = relationship(back_populates="session",cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"Session(id={self.id}, start_time={self.start_time}, end_time={self.end_time}, ip_address={self.ip_address}, device={self.device}, metadata={self.metadata})"

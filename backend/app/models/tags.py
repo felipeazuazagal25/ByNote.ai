@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from app.models import User
     from app.models import Project
     from app.models import Note
+    from app.models import Project
 
 class Tag(Base):
     __tablename__ = "tags"
@@ -25,8 +26,12 @@ class Tag(Base):
     user: Mapped["User"] = relationship(back_populates="tags") # maybe not needed
 
     # Relationship to the ProjectTag, NoteTag tables
-    projects_tags: Mapped[List["ProjectTag"]] = relationship(back_populates="tag")
-    notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="tag")
+    projects_tags: Mapped[List["ProjectTag"]] = relationship(back_populates="tag",lazy="selectin")
+    projects: Mapped[List["Project"]] =  relationship('Project', 
+                                                      secondary='project_tags', back_populates="tags", lazy="selectin", viewonly=True)
+
+    
+    notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="tag",lazy="selectin")
 
     def __repr__(self) -> str:
         return f"Tag(id={self.id}, tag_name={self.tag_name}, tag_color={self.tag_color}, visibility={self.visibility})"
@@ -39,11 +44,11 @@ class ProjectTag(Base):
 
     # Tag relationship
     tag_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('tags.id'), nullable=False)
-    tag:Mapped["Tag"] = relationship(back_populates='projects_tags')
+    tag:Mapped["Tag"] = relationship(back_populates='projects_tags',lazy="selectin")
     
     # Project relationship
     project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('projects.id'), nullable=False)
-    project: Mapped["Project"] = relationship(back_populates='projects_tags')
+    project: Mapped["Project"] = relationship(back_populates='projects_tags',lazy="selectin")
 
     def __repr__(self) -> str:
         return f"ProjectTag(id={self.id}, project_id={self.project_id}, project_name={self.project.name}, tag_id={self.tag_id}, tag_name={self.tag.tag_name})"
@@ -57,11 +62,11 @@ class NoteTag(Base):
 
     # Note relationship
     note_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('notes.id'), nullable=False)
-    note: Mapped["Note"] = relationship(back_populates='notes_tags')
+    note: Mapped["Note"] = relationship(back_populates='notes_tags',lazy="selectin")
 
     # Tag relationship
     tag_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('tags.id'), nullable=False)
-    tag: Mapped["Tag"] = relationship(back_populates='notes_tags')
+    tag: Mapped["Tag"] = relationship(back_populates='notes_tags',lazy="selectin")
 
     def __repr__(self) -> str:
         return f"NoteTag(id={self.id}, note_id={self.note_id}, note_title={self.note.title}, tag_id={self.tag_id}, tag_name={self.tag.tag_name})"

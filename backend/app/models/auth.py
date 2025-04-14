@@ -9,7 +9,9 @@ from typing import List, Optional
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.models import Note
+    from app.models import Project
+    from app.models import Tag
+    from app.models import Session
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
@@ -24,7 +26,10 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     # str] = mapped_column(nullable=False)
     #hashed_password: Mapped[str] = mapped_column(nullable=False)
     
-    notes: Mapped[Optional[List["Note"]]] = relationship(back_populates="user")
+    # Relationship to the Project table
+    projects: Mapped[List["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    tags: Mapped[List["Tag"]] = relationship(back_populates="user", cascade="all, delete-orphan") 
+    sessions: Mapped[List["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"

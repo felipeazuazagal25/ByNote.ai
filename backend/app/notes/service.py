@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from app.models.notes import Note
 from app.notes.schemas import NoteCreate, NoteUpdate
 from typing import List
@@ -11,12 +10,21 @@ import logging
 from datetime import datetime
 from app.auth.service import current_active_user
 from app.models.auth import User
-
+import uuid
+from app.models.project import Project
 logger = logging.getLogger('bynote')
 
-async def create_note(note: NoteCreate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
-    logger.info(f"Creating note: {note}")
-    db_note = Note(**note.model_dump(), user_id=user.id)
+async def create_note(note: NoteCreate, project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
+    if project_id is None:
+        query = select(Project).filter(Project.user_id == user.id, Project.slug == "inbox")
+        response = await db.execute(query)
+        default_project = response.scalar_one_or_none()
+        if default_project is None:
+            raise HTTPException(status_code=404, detail="Default project 'Inbox' not found")
+        default_project_id = default_project.id
+        db_note = Note(**note.model_dump(), project_id=default_project_id)
+    else:
+        db_note = Note(**note.model_dump(), project_id=project_id)
     db.add(db_note)
     await db.commit()
     await db.refresh(db_note)

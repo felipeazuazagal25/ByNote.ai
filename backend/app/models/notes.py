@@ -5,6 +5,8 @@ import uuid
 from sqlalchemy import ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from typing import TYPE_CHECKING, List
+from slugify import slugify
+from sqlalchemy.ext.hybrid import hybrid_property
 
 if TYPE_CHECKING:
     from app.models import Project
@@ -15,6 +17,19 @@ class Note(Base):
     __tablename__ = "notes"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(nullable=False, default="Untitled")
+    _slug: Mapped[str] = mapped_column(nullable=False, unique=True)
+
+    @hybrid_property
+    def slug(self) -> str:
+        return self._slug
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if 'title' in kwargs:
+            self._slug = slugify(kwargs['title'])
+        else:
+            self._slug = slugify("Untitled")
+
     text_content: Mapped[str] = mapped_column(nullable=False, default="")
     rich_content: Mapped[dict] = mapped_column(JSON,nullable=False, default={}) # Using for example TipTap
 
@@ -33,10 +48,10 @@ class Note(Base):
     project: Mapped["Project"] = relationship(back_populates="notes")
 
     # Relationship to the NoteTag table
-    notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="note")
+    notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="note",cascade="all, delete-orphan")
 
     # Relationship to the NoteVersions table
-    note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note")
+    note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note",cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"Note(id={self.id}, title={self.title}, content={self.content})"
