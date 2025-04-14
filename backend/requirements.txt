@@ -61,7 +61,6 @@ typer==0.15.2
 typing_extensions==4.12.2
 uuid==1.30
 uvicorn==0.34.0
-uvloop==0.21.0
 watchfiles==1.0.4
 websockets==15.0.1
 wheel==0.45.1
