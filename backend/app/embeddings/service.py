@@ -21,7 +21,6 @@ class EmbeddingService(Generic[T]):
             entity_id=entity.id,
             entity_type=entity.get_entity_type(),
             model_name=self.provider.model_name,
-            model_version=self.provider.model_version
         )
         db.add(embedding)
         await db.commit()
@@ -44,3 +43,11 @@ class EmbeddingService(Generic[T]):
         embedding2 = embeddings[1].embedding
         return 1 - np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
 
+
+
+async def get_embeddings(db: AsyncSession) -> List[Embedding]:
+    query = select(Embedding)
+    result = await db.execute(query)
+    embeddings = result.scalars().all()
+    # Convert SQLAlchemy objects to dictionaries
+    return embeddings

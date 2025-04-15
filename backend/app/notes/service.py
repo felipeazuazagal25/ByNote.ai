@@ -20,12 +20,7 @@ logger = logging.getLogger('bynote')
 
 async def create_note(note: NoteCreate, project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
     if project_id is None:
-        query = select(Project).filter(Project.user_id == user.id, Project.slug == "inbox")
-        response = await db.execute(query)
-        default_project = response.scalar_one_or_none()
-        if default_project is None:
-            raise HTTPException(status_code=404, detail="Default project 'Inbox' not found")
-        default_project_id = default_project.id
+        default_project_id = user.default_project_id
         db_note = Note(**note.model_dump(), project_id=default_project_id)
     else:
         db_note = Note(**note.model_dump(), project_id=project_id)

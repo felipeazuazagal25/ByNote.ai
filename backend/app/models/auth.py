@@ -34,7 +34,7 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     sessions: Mapped[List["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     # Default project
-    default_project_id: Mapped[uuid.UUID] = mapped_column(default="")
+    default_project_id: Mapped[uuid.UUID] = mapped_column(default="12345678-1234-5678-1234-567812345678")
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"

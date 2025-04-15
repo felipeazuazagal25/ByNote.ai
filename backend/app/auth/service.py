@@ -47,7 +47,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         db = await get_db_session()  # Get the database session
         try:
-            await create_default_project(user, db)  # Pass the db session to your function
+            user_in_session = await db.get(User, user.id)
+            await create_default_project(user_in_session, db)
             print(f"User {user.id} has registered.")
         finally:
             await db.close()
@@ -123,8 +124,15 @@ current_active_user = fastapi_users.current_user(active=True)
 async def create_default_project(user: User, db: AsyncSession) -> Project:
     db_project = Project(name="Inbox", description="Inbox", is_archived=False, is_shared=False, ui_color="#000000", ui_icon="🔍", ui_theme="light", ui_font="sans-serif", user_id=user.id)
     db.add(db_project)
+    await db.flush()  # This will generate the project ID
+    
+    # Update user with the new project ID
+    user.default_project_id = db_project.id
+    db.add(user)
     await db.commit()
     await db.refresh(db_project)
-    return db_project       
+    await db.refresh(user)
+    
+    return db_project
         
         

@@ -10,7 +10,7 @@ import numpy as np
 class Embedding(Base):
     __tablename__ = "embeddings"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    # embedding: Mapped[np.array] = mapped_column(Vector(768),nullable=False) # THIS IS THE PROBLEM
+    embedding: Mapped[np.ndarray] = mapped_column(Vector(768),nullable=False)
     model_name: Mapped[str] = mapped_column(nullable=False, default="bert-base-uncased")
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
