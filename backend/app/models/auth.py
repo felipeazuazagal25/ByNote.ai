@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from app.models import Project
     from app.models import Tag
     from app.models import Session
+    from app.models import Embedding
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
@@ -27,6 +28,8 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     # str] = mapped_column(nullable=False)
     #hashed_password: Mapped[str] = mapped_column(nullable=False)
     
+    # Relationship to Embeddings table
+    embeddings: Mapped[List['Embedding']] = relationship(back_populates='user', cascade="all, delete-orphan")
 
     # Relationship to the Project table
     projects: Mapped[List["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan", foreign_keys="Project.user_id")

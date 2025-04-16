@@ -8,6 +8,12 @@ from typing import TYPE_CHECKING, List
 from slugify import slugify
 from sqlalchemy.ext.hybrid import hybrid_property
 from pgvector.sqlalchemy import Vector
+from app.utils import generate_random_string
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 if TYPE_CHECKING:
     from app.models import Project
@@ -18,8 +24,13 @@ class Note(Base):
     __tablename__ = "notes"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(nullable=False, default="Untitled")
-    _slug: Mapped[str] = mapped_column(nullable=False, unique=True)
+    _slug: Mapped[str] = mapped_column(nullable=False)
+    _urlString: Mapped[str] = mapped_column(nullable=False, unique=True)
 
+    @hybrid_property
+    def urlString(self) -> str:
+        return self._urlString
+    
     @hybrid_property
     def slug(self) -> str:
         return self._slug
@@ -28,8 +39,14 @@ class Note(Base):
         super().__init__(**kwargs)
         if 'title' in kwargs:
             self._slug = slugify(kwargs['title'])
+            try:
+                self._urlString = generate_random_string(8)
+            except Exception as e:
+                logger.error(f"Error generating random string: {e}")
+                self._urlString = generate_random_string(8)
         else:
             self._slug = slugify("Untitled")
+            self._urlString = generate_random_string(8)
 
     text_content: Mapped[str] = mapped_column(nullable=False, default="")
     rich_content: Mapped[dict] = mapped_column(JSON,nullable=False, default={}) # Using for example TipTap
@@ -54,12 +71,16 @@ class Note(Base):
     # Relationship to the NoteVersions table
     note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note",cascade="all, delete-orphan")
 
+    # Relationship to the Embedding table
+    embedding_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("embeddings.id"), nullable=True)
+    
+
     @property
     def entity_type(self) -> str:
         return "note"
 
     def get_embedding_text(self) -> str:
-        return self.text_content
+        return self.title + " " + self.text_content
 
     def get_entity_type(self) -> str:
         return "note"

@@ -7,12 +7,12 @@ T = TypeVar('T')
 
 class EmbeddableEntity(ABC):
     @abstractmethod
-    def get_embedding(self) -> str:
+    def get_embedding_text(self) -> str:
         """Get the embedding for the entity"""
         pass
 
     @abstractmethod
-    def get_model_name(self) -> str:
+    def get_entity_type(self) -> str:
         """Get the model name for the entity"""
         pass
 

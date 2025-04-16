@@ -14,7 +14,7 @@ class NoteBase(BaseModel):
     
 class NoteMinimal(NoteBase):
     id: uuid.UUID
-
+    embedding_id: uuid.UUID
     class Config:
         from_attributes = True
 
@@ -26,6 +26,9 @@ class NoteUpdate(NoteBase):
 
 class NoteOut(NoteBase):
     id: uuid.UUID
+    slug: str
+    urlString: str
+    embedding_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
 
