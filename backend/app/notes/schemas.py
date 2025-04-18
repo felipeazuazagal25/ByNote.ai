@@ -28,7 +28,6 @@ class NoteOut(NoteBase):
     id: uuid.UUID
     slug: str
     urlString: str
-    embedding_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
 

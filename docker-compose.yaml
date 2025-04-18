@@ -16,6 +16,8 @@ services:
         "--port",
         "8000",
         "--reload",
+        "--workers",
+        "1",
       ]
     volumes:
       - ./backend:/app

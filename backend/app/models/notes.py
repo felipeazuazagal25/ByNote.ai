@@ -4,12 +4,14 @@ from datetime import datetime
 import uuid
 from sqlalchemy import ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Dict
 from slugify import slugify
 from sqlalchemy.ext.hybrid import hybrid_property
 from pgvector.sqlalchemy import Vector
 from app.utils import generate_random_string
 import logging
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -18,6 +20,7 @@ logger.setLevel(logging.DEBUG)
 if TYPE_CHECKING:
     from app.models import Project
     from app.models import NoteTag
+    from app.models import Embedding
 
 
 class Note(Base):
@@ -71,16 +74,22 @@ class Note(Base):
     # Relationship to the NoteVersions table
     note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note",cascade="all, delete-orphan")
 
-    # Relationship to the Embedding table
-    embedding_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("embeddings.id"), nullable=True)
-    
-
     @property
     def entity_type(self) -> str:
         return "note"
+    
+    async def embeddings(self, db: AsyncSession) -> List["Embedding"]:
+        from app.models import Embedding
+        #query the database
+        query = select(Embedding).where(Embedding.entity_id == self.id)
+        response = await db.execute(query)
+        return response.scalars().all()
 
-    def get_embedding_text(self) -> str:
-        return self.title + " " + self.text_content
+    def get_embedding_text(self) -> Dict[str, str]:
+        return {'title': self.title, 'content': self.text_content}
+    
+    def get_embedding_id(self, field: str) -> uuid.UUID:
+        return self.embeddings[field].id
 
     def get_entity_type(self) -> str:
         return "note"

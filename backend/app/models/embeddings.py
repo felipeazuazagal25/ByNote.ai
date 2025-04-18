@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 
 if TYPE_CHECKING:
     from app.models import User
+    from app.models import Note
 
 class Embedding(Base):
     __tablename__ = "embeddings"
@@ -23,6 +24,7 @@ class Embedding(Base):
     # Generic Foreign Key
     entity_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    entity_field: Mapped[str] = mapped_column(String(50), nullable=False)
 
     # Relationship to the User table
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)

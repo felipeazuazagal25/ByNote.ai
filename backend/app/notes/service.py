@@ -59,6 +59,15 @@ async def get_note(note_id: uuid.UUID, db: AsyncSession = Depends(get_db), user:
         raise HTTPException(status_code=404, detail="Note not found")
     return note
 
+async def get_note_embeddings(note_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> List[Embedding]:
+    query = select(Note).where(Note.id == note_id)
+    result = await db.execute(query)
+    note = result.scalar_one_or_none()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    embeddings = await note.embeddings(db)
+    return embeddings
+
 
 async def update_note(note_id: uuid.UUID, note: NoteUpdate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
     result = await db.execute(select(Note).filter(Note.id == note_id))

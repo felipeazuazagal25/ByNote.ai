@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.models import Tag
     from app.models import Session
     from app.models import Embedding
+    from app.models import Chat
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
@@ -38,6 +39,9 @@ class User(SQLAlchemyBaseUserTable[int], Base):
 
     # Default project
     default_project_id: Mapped[uuid.UUID] = mapped_column(default="12345678-1234-5678-1234-567812345678")
+
+    # Relationship to the Chat table
+    chats: Mapped[List["Chat"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, first_name={self.first_name}, last_name={self.last_name})"

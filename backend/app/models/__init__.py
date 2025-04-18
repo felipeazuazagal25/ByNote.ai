@@ -5,4 +5,4 @@ from .tags import *
 from .session import *
 from .embeddings import *
 from .base import *
-
+from .chats import *

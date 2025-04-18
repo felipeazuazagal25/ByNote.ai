@@ -2,6 +2,7 @@ from app.embeddings.base import EmbeddingProvider
 from transformers import AutoTokenizer, AutoModel
 import torch
 from typing import List
+from app.utils import words_in_text
 
 class BertEmbeddingProvider(EmbeddingProvider):
     def __init__(self, model_name: str = "bert-base-uncased"):
@@ -11,12 +12,14 @@ class BertEmbeddingProvider(EmbeddingProvider):
         self.model = AutoModel.from_pretrained(model_name)
         self.model.eval()
 
-    async def generate_embedding(self, text: str) -> List[float]:
-        inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512)
+    async def generate_embedding(self, text: str, max_length: int | str = "auto") -> List[float]:
+        if max_length == "auto":
+            max_length = min(int(2 * words_in_text(text)), self.tokenizer.model_max_length)
+        inputs = self.tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=max_length)
         with torch.no_grad():
             outputs = self.model(**inputs)
-            embeddings = outputs.last_hidden_state[:, 0, :].numpy()
-            return embeddings[0].tolist()
+        embedding = outputs.last_hidden_state[:, 0, :].numpy()
+        return embedding[0].tolist()
     
     @property
     def dimensions(self) -> int:

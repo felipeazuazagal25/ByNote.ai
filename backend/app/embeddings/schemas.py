@@ -5,6 +5,7 @@ from datetime import datetime
 class EmbeddingBase(BaseModel):
     entity_id: uuid.UUID
     entity_type: str
+    entity_field: str
     model_name: str
     embedding: List[float]
 
