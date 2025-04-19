@@ -16,7 +16,6 @@ from sqlalchemy import select
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-
 if TYPE_CHECKING:
     from app.models import Project
     from app.models import NoteTag

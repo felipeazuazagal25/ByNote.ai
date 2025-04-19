@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.models import Project
     from app.models import Note
     from app.models import Project
+    from app.models import Task
 
 class Tag(Base):
     __tablename__ = "tags"
@@ -70,4 +71,23 @@ class NoteTag(Base):
 
     def __repr__(self) -> str:
         return f"NoteTag(id={self.id}, note_id={self.note_id}, note_title={self.note.title}, tag_id={self.tag_id}, tag_name={self.tag.tag_name})"
+    
+
+
+# Many to many relationship between tasks and tags
+class TaskTag(Base):
+    __tablename__ = "task_tags"
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+
+    # Task relationship
+    task_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('tasks.id'), nullable=False)
+    task: Mapped["Task"] = relationship(back_populates='task_tags',lazy="selectin")
+
+    # Tag relationship
+    tag_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('tags.id'), nullable=False)
+    tag: Mapped["Tag"] = relationship(back_populates='task_tags',lazy="selectin")
+
+    def __repr__(self) -> str:
+        return f"TaskTag(id={self.id}, task_id={self.task_id}, task_name={self.task.name}, tag_id={self.tag_id}, tag_name={self.tag.tag_name})"
+
     

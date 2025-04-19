@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from app.models import ProjectTag
     from app.models import Note
     from app.models import Tag
-
+    from app.models import Task
 
 class Project(Base):
     __tablename__ = "projects"
@@ -62,6 +62,8 @@ class Project(Base):
     # Relationship to the Notes table
     notes: Mapped[List["Note"]] = relationship(back_populates='project',lazy="selectin",cascade="all, delete-orphan")
 
+    # Relationship to the Tasks table
+    tasks: Mapped[List["Task"]] = relationship(back_populates='project',lazy="selectin",cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"Project(id={self.id}, name={self.name}, description={self.description}, is_archived={self.is_archived}, is_shared={self.is_shared}, ui_color={self.ui_color}, ui_icon={self.ui_icon}, ui_theme={self.ui_theme}, ui_font={self.ui_font})"

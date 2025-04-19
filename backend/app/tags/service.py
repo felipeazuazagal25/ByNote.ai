@@ -62,8 +62,11 @@ async def delete_tag(tag_id: uuid.UUID, db: AsyncSession, user: User):
 async def create_project_tag(project_tag: ProjectTagCreate, db: AsyncSession, user: User):
     db_project_tag = ProjectTag(**project_tag.model_dump())
     db.add(db_project_tag)
-    await db.commit()
-    await db.refresh(db_project_tag)
+    try:
+        await db.commit()
+        await db.refresh(db_project_tag)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     return db_project_tag
 
 async def get_project_tag(project_tag_id: uuid.UUID, db: AsyncSession, user: User):
@@ -80,5 +83,19 @@ async def delete_project_tag(project_tag_id: uuid.UUID, db: AsyncSession, user: 
     db_project_tag = response.scalar_one_or_none()
     if db_project_tag is None:
         raise HTTPException(status_code=404, detail="Project tag not found")
-    await db.delete(db_project_tag)
-    await db.commit()
+    try:
+        await db.delete(db_project_tag)
+        await db.commit()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"message": "Project tag deleted successfully"}
+
+# ############################################################
+# -------------------- Task Tag Functions --------------------
+# ############################################################
+
+# async def create_task_tag(task_tag: TaskTagCreate, db: AsyncSession, user: User):
+#     db_task_tag = TaskTag(**task_tag.model_dump())
+#     db.add(db_task_tag)
+#     await db.commit()
+#     await db.refresh(db_task_tag)

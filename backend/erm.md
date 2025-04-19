@@ -115,7 +115,6 @@ entity Notes_Versions {
   created_at: datetime
 }
 
-' --- UNTIL HERE ---
 
 entity Notes_Embeddings {
   *id: UUID <<PK>>
@@ -126,6 +125,7 @@ entity Notes_Embeddings {
   created_at: datetime
   updated_at: datetime
 }
+
 
 entity Tasks {
   *id: UUID <<PK>>
@@ -144,6 +144,7 @@ entity Tasks {
   completed_at: datetime
 }
 
+
 entity Task_Tags {
   *id: UUID <<PK>>
   --
@@ -151,6 +152,8 @@ entity Task_Tags {
   tag_id: UUID
   created_at: datetime
 }
+
+' --- UNTIL HERE ---
 
 entity Task_Embeddings {
   *id: UUID <<PK>>
