@@ -5,6 +5,7 @@ from app.models.tags import Tag, ProjectTag, NoteTag
 from app.models.auth import User
 from app.tags.schemas import TagCreate, TagUpdate, TagOut, ProjectTagCreate, ProjectTagOut, NoteTagCreate, NoteTagOut
 from fastapi import HTTPException
+import datetime
 
 
 # #############################################################
@@ -33,17 +34,17 @@ async def get_tag(tag_id: uuid.UUID, db: AsyncSession, user: User):
     return tag
 
 async def update_tag(tag_id: uuid.UUID, tag: TagUpdate, db: AsyncSession, user: User):
-    query = select(Tag).where(Tag.id == tag_id, Tag.user_id == user.id)
-    response = await db.execute(query)
-    db_tag = response.scalar_one_or_none()
-    if db_tag is None:
-        raise HTTPException(status_code=404, detail="Tag not found")
-    for field, value in tag.model_dump().items():
-        setattr(db_tag, field, value)
-    db.add(db_tag)
-    await db.commit()
-    await db.refresh(db_tag)
-    return db_tag
+    try:
+        db_tag = await get_tag(tag_id=tag_id)
+        for field, value in tag.model_dump().items():
+            setattr(db_tag, field, value)
+        db_tag.updated_at = datetime.now()
+        db.add(db_tag)
+        await db.commit()
+        await db.refresh(db_tag)
+        return db_tag
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 async def delete_tag(tag_id: uuid.UUID, db: AsyncSession, user: User):
     query = select(Tag).where(Tag.id == tag_id, Tag.user_id == user.id)

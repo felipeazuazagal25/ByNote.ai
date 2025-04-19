@@ -35,7 +35,7 @@ async def create_note_route(note: NoteCreate ,project_id: uuid.UUID | None = Non
 
 
 # Is this behavior correct?
-@router.get("/{project_id}", response_model=List[NoteOut])
+@router.get("/project/{project_id}", response_model=List[NoteOut])
 async def get_notes_route(project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     """
     Get all notes for the current user given a project_id.
@@ -52,7 +52,7 @@ async def get_notes_route(project_id: uuid.UUID | None = None, db: AsyncSession 
     return notes
 
 
-@router.get("/{note_id}/embeddiasasangs", response_model=List[EmbeddingOut])
+@router.get("/{note_id}/embeddings", response_model=List[EmbeddingOut])
 async def get_notes_embeddings_route(note_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     """
     Get all embeddings for the current user given a note_id.

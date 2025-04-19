@@ -50,6 +50,7 @@ class TagOutFull(TagBase):
 # ##############################################################
 # -------------------- Project Tag Schemas --------------------
 # ##############################################################
+
 class ProjectTagBase(BaseModel):
     project_id: uuid.UUID
     tag_id: uuid.UUID
@@ -80,7 +81,25 @@ class NoteTagOut(NoteTagBase):
         from_attributes = True
 
 
+# ##############################################################
+# -------------------- Task Tag Schemas --------------------
+# ##############################################################
+
+class TaskTagBase(BaseModel):
+    task_id: uuid.UUID
+    tag_id: uuid.UUID
+
+class TaskTagCreate(TaskTagBase):
+    pass
+
+class TaskTagOut(TaskTagBase):
+    id: uuid.UUID
+
+    class Config:
+        from_attributes = True
+
 # Rebuild the model to include the tags
 from app.projects.schemas import ProjectMinimal
 from app.notes.schemas import NoteMinimal
+#from app.tasks.schemas import TaskMinimal
 TagOutFull.model_rebuild()

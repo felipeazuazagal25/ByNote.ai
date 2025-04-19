@@ -24,7 +24,6 @@ class Task(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=True)
-    completed: Mapped[bool] = mapped_column(default=False)
     due_date: Mapped[datetime] = mapped_column(nullable=True)
     priority: Mapped[int] = mapped_column(nullable=True)
     is_checked: Mapped[bool] = mapped_column(default=False)
@@ -43,7 +42,7 @@ class Task(Base):
     project: Mapped["Project"] = relationship(back_populates="tasks")
 
     # Relationship to Tags
-    task_tags: Mapped[List["Tag"]] = relationship(secondary="task_tags", back_populates="tasks")
+    task_tags: Mapped[List["Tag"]] = relationship(secondary="task_tags", back_populates="tasks", cascade="all, delete-orphan")
 
     # Relationship to SubTasks
     sub_tasks: Mapped[List["SubTask"]] = relationship(back_populates="task",cascade="all, delete-orphan")
@@ -83,10 +82,6 @@ class Task(Base):
 
     def get_entity_type(self) -> str:
         return "task"
-
-    def __repr__(self) -> str:
-        return f"Task(id={self.id}, name={self.name}, description={self.description}, completed={self.completed}, due_date={self.due_date}, priority={self.priority}, is_checked={self.is_checked}, is_pinned={self.is_pinned}, is_archived={self.is_archived})"
-
 
     def __repr__(self) -> str:
         return f"Task(id={self.id}, name={self.name}, description={self.description}, completed={self.completed}, due_date={self.due_date}, priority={self.priority}, is_checked={self.is_checked}, is_pinned={self.is_pinned}, is_archived={self.is_archived})"

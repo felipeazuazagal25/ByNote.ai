@@ -11,6 +11,7 @@ from app.auth import auth_router
 from app.projects import projects_router
 from app.tags import tags_router
 from app.embeddings import embeddings_router
+from app.tasks import tasks_router
 
 
 # Console logging
@@ -35,7 +36,7 @@ app.include_router(notes_router)
 app.include_router(projects_router)
 app.include_router(tags_router)
 app.include_router(embeddings_router)
-
+app.include_router(tasks_router)
 
 @app.get("/")
 async def root():
