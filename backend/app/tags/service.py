@@ -1,9 +1,9 @@
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.tags import Tag, ProjectTag, NoteTag
+from app.models.tags import Tag, ProjectTag, NoteTag, TaskTag
 from app.models.auth import User
-from app.tags.schemas import TagCreate, TagUpdate, TagOut, ProjectTagCreate, ProjectTagOut, NoteTagCreate, NoteTagOut
+from app.tags.schemas import TagCreate, TagUpdate, ProjectTagCreate, NoteTagCreate, TaskTagCreate
 from fastapi import HTTPException
 import datetime
 
@@ -91,12 +91,80 @@ async def delete_project_tag(project_tag_id: uuid.UUID, db: AsyncSession, user: 
         raise HTTPException(status_code=500, detail=str(e))
     return {"message": "Project tag deleted successfully"}
 
+
+# ############################################################  
+# -------------------- Note Tag Functions --------------------
+# ############################################################  
+
+async def create_note_tag(note_tag: NoteTagCreate, db: AsyncSession, user: User):
+    db_note_tag = NoteTag(**note_tag.model_dump())
+    db.add(db_note_tag)
+    try:
+        await db.commit()
+        await db.refresh(db_note_tag)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return db_note_tag
+
+async def get_note_tag(note_tag_id: uuid.UUID, db: AsyncSession, user: User):
+    query = select(NoteTag).where(NoteTag.id == note_tag_id)
+    try:
+        response = await db.execute(query)
+        note_tag = response.scalar_one_or_none()
+        if note_tag is None:
+            raise HTTPException(status_code=404, detail="Note tag not found")
+        return note_tag
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def delete_note_tag(note_tag_id: uuid.UUID, db: AsyncSession, user: User):
+    query = select(NoteTag).where(NoteTag.id == note_tag_id)
+    try:
+        response = await db.execute(query)
+        db_note_tag = response.scalar_one_or_none()
+        if db_note_tag is None:
+            raise HTTPException(status_code=404, detail="Note tag not found")   
+        await db.delete(db_note_tag)
+        await db.commit()
+        return {"message": "Note tag deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ############################################################
 # -------------------- Task Tag Functions --------------------
 # ############################################################
 
-# async def create_task_tag(task_tag: TaskTagCreate, db: AsyncSession, user: User):
-#     db_task_tag = TaskTag(**task_tag.model_dump())
-#     db.add(db_task_tag)
-#     await db.commit()
-#     await db.refresh(db_task_tag)
+async def create_task_tag(task_tag: TaskTagCreate, db: AsyncSession, user: User):
+    db_task_tag = TaskTag(**task_tag.model_dump())
+    db.add(db_task_tag)
+    try:
+        await db.commit()
+        await db.refresh(db_task_tag)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return db_task_tag
+
+async def get_task_tag(task_tag_id: uuid.UUID, db: AsyncSession, user: User):
+    query = select(TaskTag).where(TaskTag.id == task_tag_id)
+    try:
+        response = await db.execute(query)
+        task_tag = response.scalar_one_or_none()
+        if task_tag is None:
+            raise HTTPException(status_code=404, detail="Task tag not found")
+        return task_tag
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+async def delete_task_tag(task_tag_id: uuid.UUID, db: AsyncSession, user: User):
+    query = select(TaskTag).where(TaskTag.id == task_tag_id)
+    try:
+        response = await db.execute(query)
+        db_task_tag = response.scalar_one_or_none()
+        if db_task_tag is None:
+            raise HTTPException(status_code=404, detail="Task tag not found")
+        await db.delete(db_task_tag)
+        await db.commit()
+        return {"message": "Task tag deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

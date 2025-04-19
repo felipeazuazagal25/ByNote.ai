@@ -67,6 +67,7 @@ class ProjectTagOut(ProjectTagBase):
 # ##############################################################
 # -------------------- Note Tag Schemas --------------------
 # ##############################################################
+
 class NoteTagBase(BaseModel):
     note_id: uuid.UUID
     tag_id: uuid.UUID
