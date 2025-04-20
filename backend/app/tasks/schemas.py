@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 import uuid
+
 
 #######################################################
 # --------------------- Sub Tasks ---------------------
@@ -26,8 +27,6 @@ class SubTaskUpdate(SubTaskBase):
 class SubTaskOut(SubTaskBase):
     id: uuid.UUID
     checked_at: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -53,8 +52,11 @@ class TaskCreate(TaskBase):
 class TaskUpdate(TaskBase):
     id: uuid.UUID
 
-class TaskOut(TaskBase):
+class TaskMinimal(TaskBase):
     id: uuid.UUID
+    sub_tasks: Optional[List["SubTaskOut"]] = []
+    tags: Optional[List["TagMinimal"]] = []
+    pass
 
 
 class TaskOut(TaskBase):

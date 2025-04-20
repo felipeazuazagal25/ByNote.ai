@@ -16,8 +16,8 @@ router = APIRouter(prefix='/tasks', tags=['tasks'], dependencies=[Depends(curren
 
 # Create a task
 @router.post('/', response_model=TaskOut, status_code=201)
-async def create_task_route(task: TaskCreate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
-    db_task = await create_task(task, db, user)
+async def create_task_route(task: TaskCreate, project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    db_task = await create_task(project_id, task, db, user)
     return db_task
 
 # Get all tasks from a project

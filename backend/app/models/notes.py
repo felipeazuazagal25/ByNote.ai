@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from app.models import Project
     from app.models import NoteTag
     from app.models import Embedding
-
+    from app.models import Tag
 
 class Note(Base):
     __tablename__ = "notes"
@@ -69,6 +69,7 @@ class Note(Base):
 
     # Relationship to the NoteTag table
     notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="note",cascade="all, delete-orphan")
+    tags: Mapped[List["Tag"]] = relationship(secondary="note_tags", back_populates="notes", viewonly=True)
 
     # Relationship to the NoteVersions table
     note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note",cascade="all, delete-orphan")

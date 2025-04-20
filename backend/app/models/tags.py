@@ -33,6 +33,10 @@ class Tag(Base):
 
     
     notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="tag",lazy="selectin")
+    notes: Mapped[List["Note"]] =  relationship('Note', secondary='note_tags', back_populates="tags", lazy="selectin", viewonly=True)
+
+    task_tags: Mapped[List["TaskTag"]] = relationship(back_populates="tag",lazy="selectin")
+    tasks: Mapped[List["Task"]] =  relationship('Task', secondary='task_tags', back_populates="tags", lazy="selectin", viewonly=True)
 
     def __repr__(self) -> str:
         return f"Tag(id={self.id}, tag_name={self.tag_name}, tag_color={self.tag_color}, visibility={self.visibility})"
@@ -45,7 +49,7 @@ class ProjectTag(Base):
 
     # Tag relationship
     tag_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('tags.id'), nullable=False)
-    tag:Mapped["Tag"] = relationship(back_populates='projects_tags',lazy="selectin")
+    tag: Mapped["Tag"] = relationship(back_populates='projects_tags',lazy="selectin")
     
     # Project relationship
     project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('projects.id'), nullable=False)

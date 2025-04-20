@@ -43,6 +43,7 @@ class TagOutFull(TagBase):
     # Use Any to avoid circular import
     projects: Optional[List["ProjectMinimal"]] = []
     notes: Optional[List["NoteMinimal"]] = []
+    tasks: Optional[List["TaskMinimal"]] = []
 
     class Config:
         from_attributes = True
@@ -102,5 +103,5 @@ class TaskTagOut(TaskTagBase):
 # Rebuild the model to include the tags
 from app.projects.schemas import ProjectMinimal
 from app.notes.schemas import NoteMinimal
-#from app.tasks.schemas import TaskMinimal
+from app.tasks.schemas import TaskMinimal
 TagOutFull.model_rebuild()

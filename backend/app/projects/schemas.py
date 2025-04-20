@@ -40,8 +40,11 @@ class ProjectOut(ProjectBase):
 class ProjectOutFull(ProjectOut):
     notes: Optional[List["NoteMinimal"]] = []
     tags: Optional[List["TagMinimal"]] = []
-    # tasks
+    tasks: Optional[List["TaskMinimal"]] = []
 
 # Rebuild the model to include the tags
-from app.tags.schemas import TagMinimal, NoteMinimal, ProjectTagOut
+from app.tags.schemas import TagMinimal, ProjectTagOut
+from app.notes.schemas import NoteMinimal
+from app.tasks.schemas import TaskMinimal
 ProjectOut.model_rebuild()
+ProjectOutFull.model_rebuild()

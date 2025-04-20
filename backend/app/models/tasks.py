@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Dict
 import logging
 from app.models import Embedding
-
+from app.models.tags import TaskTag
 logger = logging.getLogger(__name__)
 
 
@@ -42,10 +42,11 @@ class Task(Base):
     project: Mapped["Project"] = relationship(back_populates="tasks")
 
     # Relationship to Tags
-    task_tags: Mapped[List["Tag"]] = relationship(secondary="task_tags", back_populates="tasks", cascade="all, delete-orphan")
+    task_tags: Mapped[List["TaskTag"]] = relationship(back_populates="task", cascade="all, delete-orphan", lazy="selectin")
+    tags: Mapped[List["Tag"]] = relationship(secondary="task_tags", back_populates="tasks", viewonly=True, lazy="selectin")
 
     # Relationship to SubTasks
-    sub_tasks: Mapped[List["SubTask"]] = relationship(back_populates="task",cascade="all, delete-orphan")
+    sub_tasks: Mapped[List["SubTask"]] = relationship(back_populates="task",cascade="all, delete-orphan", lazy="selectin")
 
     # Relationship to TaskVersions
     task_versions: Mapped[List["TaskVersion"]] = relationship(back_populates="task",cascade="all, delete-orphan")
@@ -61,7 +62,7 @@ class Task(Base):
         response = await db.execute(query)
         return response.scalars().all()
     
-    async def sub_tasks(self, db: AsyncSession) -> List["SubTask"]:
+    async def subtasks(self, db: AsyncSession) -> List["SubTask"]:
         query = select(SubTask).where(SubTask.task_id == self.id)
         try:
             response = await db.execute(query)
@@ -84,7 +85,7 @@ class Task(Base):
         return "task"
 
     def __repr__(self) -> str:
-        return f"Task(id={self.id}, name={self.name}, description={self.description}, completed={self.completed}, due_date={self.due_date}, priority={self.priority}, is_checked={self.is_checked}, is_pinned={self.is_pinned}, is_archived={self.is_archived})"
+        return f"Task(id={self.id}, name={self.name}, description={self.description}, due_date={self.due_date}, priority={self.priority}, is_checked={self.is_checked}, is_pinned={self.is_pinned}, is_archived={self.is_archived})"
 
 
 class SubTask(Base):
