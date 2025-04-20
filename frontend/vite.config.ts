@@ -1,6 +1,8 @@
 import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { remixRoutesOptionAdapter } from "@react-router/remix-routes-option-adapter";
+import { flatRoutes } from "remix-flat-routes";
 
 declare module "@remix-run/node" {
   interface Future {
@@ -18,6 +20,19 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
+      routes: async (defineRoutes) => {
+        const routes = await flatRoutes("routes", defineRoutes, {
+          ignoredRouteFiles: ["**/.*"], // Ignore dot files (like .DS_Store)
+          appDir: "app",
+          routeDir: "routes",
+          basePath: "/",
+          paramPrefixChar: "$",
+          nestedDirectoryChar: "+",
+          //routeRegex: /((\${nestedDirectoryChar}[\/\\][^\/\\:?*]+)|[\/\\]((index|route|layout|page)|(_[^\/\\:?*]+)|([^\/\\:?*]+\.route)))\.(ts|tsx|js|jsx|md|mdx)$$/,
+        });
+        return routes;
+      },
+      ignoredRouteFiles: ["**/*.test.ts", "**/*.spec.ts"], // Example: ignore test files
     }),
     tsconfigPaths(),
   ],
