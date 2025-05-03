@@ -8,6 +8,7 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
+import { useState, useEffect } from "react";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,16 +24,50 @@ export const links: LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    // Check if user has a theme preference
+    if (typeof window !== "undefined") {
+      if (
+        localStorage.theme === "dark" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        setTheme("dark");
+        document.documentElement.classList.add("dark");
+      } else {
+        setTheme("light");
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.theme = newTheme;
+    document.documentElement.classList.toggle("dark");
+  };
+
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body>
-        {children}
+      <body className="h-full">
+        <div className="relative h-full">
+          {children}
+          <button
+            onClick={toggleTheme}
+            className="fixed bottom-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:ring-2 hover:ring-blue-400 transition-all"
+          >
+            {theme === "light" ? "🌙" : "☀️"}
+          </button>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
