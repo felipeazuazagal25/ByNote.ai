@@ -9,7 +9,7 @@ import {
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Form, json, Link, useActionData, useNavigate } from "@remix-run/react";
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { login } from "~/routes/api/auth";
 import { useEffect } from "react";
 import { Label } from "~/components/ui/label";
@@ -82,7 +82,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       headers: { "Content-Type": "application/json" },
     });
   }
-  return user;
+  return redirect("/notes");
 };
 
 export default Login;

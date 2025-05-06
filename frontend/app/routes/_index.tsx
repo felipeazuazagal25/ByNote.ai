@@ -1,5 +1,5 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link, Outlet } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { Link, Outlet, redirect } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -22,6 +22,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import GridBackground from "~/components/ui/grid-background";
+import { parse } from "postcss";
+
 
 export const meta: MetaFunction = () => {
   return [
@@ -48,7 +50,18 @@ type Note = {
   expanded: "hidden" | "normal" | "expanded";
 };
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // See if there is a cookie with the access token
+  const cookieHeader = request.headers.get("Cookie");
+  console.log(cookieHeader);
+  const accessToken = cookieHeader?.split("; ").find((row) =>
+    row.startsWith("access_token=")
+  )?.split("=")[1];
+  console.log(accessToken);
+  if (accessToken) {
+    return redirect("/notes");
+  }
+
   return null;
 };
 
