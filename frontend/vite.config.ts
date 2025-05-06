@@ -4,6 +4,12 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { flatRoutes } from "remix-flat-routes";
 
 export default defineConfig({
+  server: {
+    watch: {
+      usePolling: true,
+      interval: 100,
+    },
+  },
   plugins: [
     remix({
       future: {

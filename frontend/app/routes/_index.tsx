@@ -221,6 +221,7 @@ export default function Index() {
                       className={
                         buttonVariants({ variant: "ghost" }) + " w-full"
                       }
+                      prefetch="render"
                     >
                       Login
                     </Link>
@@ -229,6 +230,7 @@ export default function Index() {
                       className={
                         buttonVariants({ variant: "outline" }) + " w-full"
                       }
+                      prefetch="render"
                     >
                       Sign Up
                     </Link>

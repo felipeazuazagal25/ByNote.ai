@@ -39,7 +39,7 @@ export const login = async (email: string, password: string) => {
   }
 
   // Add the bearer token to as a cookie in the header
-  const cookie = createCookieSessionStorage({
+  const sessionStorage = createCookieSessionStorage({
     cookie: {
       name: "access_token",
       path: "/",
