@@ -7,6 +7,15 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        serif: [
+          "Roboto Serif",
+          "ui-serif",
+          "system-ui",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+          "Noto Color Emoji",
+        ],
         sans: [
           "Inter",
           "ui-sans-serif",

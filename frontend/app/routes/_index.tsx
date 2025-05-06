@@ -1,5 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, Outlet } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -20,6 +20,8 @@ import {
   ChevronRightIcon,
   ArrowsPointingInIcon,
 } from "@heroicons/react/24/outline";
+
+import GridBackground from "~/components/ui/grid-background";
 
 export const meta: MetaFunction = () => {
   return [
@@ -181,106 +183,94 @@ export default function Index() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden h-full">
-      <div
-        ref={containerRef}
-        className="relative min-h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden h-full"
-      >
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full"
-          style={{ touchAction: "none" }}
-        />
-
-        <AnimatePresence mode="wait">
-          {!showNotes ? (
-            <motion.div
-              key="landing"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.15, ease: "easeInOut" }}
-              className="relative flex flex-col h-screen items-center justify-center"
+    <GridBackground>
+      {!showNotes ? (
+        <motion.div
+          key="landing"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.15, ease: "easeInOut" }}
+          className="relative flex flex-col h-screen items-center justify-center"
+        >
+          <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-900">
+            <div className="relative hover:scale-105 transition-all duration-300 hover:shadow-xl">
+              <Card className="max-w-md w-full sm:max-w-lg">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-center">
+                    ByNote
+                  </CardTitle>
+                  <CardDescription>
+                    Bynote is an AI powered note taking app for your second
+                    brain.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                  <Button
+                    variant="default"
+                    onClick={() => setShowNotes(true)}
+                    className="w-full hover:text-white"
+                  >
+                    Show me more
+                    <ArrowRightIcon className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Separator />
+                  <div className="w-full flex justify-between gap-2">
+                    <Link
+                      to="/login"
+                      className={
+                        buttonVariants({ variant: "ghost" }) + " w-full"
+                      }
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className={
+                        buttonVariants({ variant: "outline" }) + " w-full"
+                      }
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="notes"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.15, ease: "easeInOut" }}
+          className="relative w-full mx-auto px-16 h-full"
+        >
+          <div className="flex flex-col gap-4 h-full min-h-0 py-8">
+            <Header />
+            <div
+              className={`flex h-full min-h-0 transition-all duration-300 ease-in-out ${
+                showTaskBar ? "gap-4" : "gap-0"
+              }`}
             >
-              <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-900">
-                <div className="relative hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                  <Card className="max-w-md w-full sm:max-w-lg">
-                    <CardHeader>
-                      <CardTitle className="text-2xl font-bold text-center">
-                        ByNote
-                      </CardTitle>
-                      <CardDescription>
-                        Bynote is an AI powered note taking app for your second
-                        brain.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-4">
-                      <Button
-                        variant="default"
-                        onClick={() => setShowNotes(true)}
-                        className="w-full"
-                      >
-                        Show me more
-                        <ArrowRightIcon className="w-4 h-4 ml-2" />
-                      </Button>
-                      <Separator />
-                      <div className="w-full flex justify-between gap-2">
-                        <Link
-                          to="/login"
-                          className={
-                            buttonVariants({ variant: "ghost" }) + " w-full"
-                          }
-                        >
-                          Login
-                        </Link>
-                        <Link
-                          to="/signup"
-                          className={
-                            buttonVariants({ variant: "outline" }) + " w-full"
-                          }
-                        >
-                          Sign Up
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="notes"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.15, ease: "easeInOut" }}
-              className="relative w-full mx-auto px-16 h-full"
-            >
-              <div className="flex flex-col gap-4 h-full min-h-0 py-8">
-                <Header />
-                <div
-                  className={`flex h-full min-h-0 transition-all duration-300 ease-in-out ${
-                    showTaskBar ? "gap-4" : "gap-0"
-                  }`}
-                >
-                  <TaskBar
-                    tasks={tasks}
-                    setTasks={setTasks}
-                    show={showTaskBar}
-                    setShow={setShowTaskBar}
-                  />
-                  <NoteList
-                    notes={notes}
-                    setNotes={setNotes}
-                    taskbar={{ show: showTaskBar, setShow: setShowTaskBar }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+              <TaskBar
+                tasks={tasks}
+                setTasks={setTasks}
+                show={showTaskBar}
+                setShow={setShowTaskBar}
+              />
+              <NoteList
+                notes={notes}
+                setNotes={setNotes}
+                taskbar={{ show: showTaskBar, setShow: setShowTaskBar }}
+              />
+              <Outlet />
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </GridBackground>
   );
 }
 
@@ -322,7 +312,7 @@ const TaskBar = ({
       }`}
     >
       <ChevronLeftIcon
-        className={`absolute top-4 -left-8 transition-all duration-200 ease-in-out w-6 h-6 z-10 bg-white dark:bg-gray-900 outline outline-1 outline-gray-200 dark:outline-gray-800 rounded-full p-1 ${
+        className={`absolute top-4 -left-8 transition-all duration-200 ease-in-out w-6 h-6  bg-white dark:bg-gray-900 outline outline-1 outline-gray-200 dark:outline-gray-800 rounded-full p-1 ${
           show ? "rotate-180" : ""
         }`}
         onClick={() => setShow(!show)}
@@ -418,9 +408,9 @@ const Note = ({
     <div
       className={`group transition-all duration-300 ease-in-out ${
         note.expanded === "hidden"
-          ? "h-0 opacity-0 min-h-0 pointer-events-none"
+          ? "h-0 opacity-0 min-h-0 pointer-events-none mb-0"
           : note.expanded === "normal"
-          ? "h-40 opacity-100 hover:h-52 py-0 pr-0"
+          ? "h-40 opacity-100 hover:h-52 py-0 pr-0 mb-4"
           : `flex-1 opacity-100 w-full`
       }`}
     >
@@ -523,7 +513,7 @@ const NoteList = ({
   const { show, setShow } = taskbar;
   return (
     <div
-      className={`flex flex-col h-full min-h-0 transition-all duration-300 ease-in-out space-y-4 ${
+      className={`flex flex-col h-full min-h-0 transition-all duration-300 ease-in-out ${
         show ? "w-4/5" : "w-full"
       }`}
     >
