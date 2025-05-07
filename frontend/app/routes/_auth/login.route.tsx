@@ -8,22 +8,22 @@ import {
 } from "~/components/ui/card";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { Form, json, Link, useActionData, useNavigate } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigate } from "@remix-run/react";
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { login } from "~/routes/api/auth";
+import { accessTokenCookie, login } from "~/routes/api/auth";
 import { useEffect } from "react";
 import { Label } from "~/components/ui/label";
 
 const Login = () => {
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("actionData", actionData);
-    if (actionData?.user) {
-      console.log("user", actionData.user);
-    }
-  }, [actionData]);
+  // useEffect(() => {
+  //   console.log("actionData", actionData);
+  //   if (actionData?.user) {
+  //     console.log("user", actionData.user);
+  //   }
+  // }, [actionData]);
 
   return (
     <div className="h-full min-h-screen flex items-center justify-center">
@@ -75,14 +75,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     );
   }
-  const user = await login(email, password);
-  if (!user.ok) {
-    return new Response(JSON.stringify(user), {
-      status: 401,
+  // Login the user
+  try{
+    const user = await login(email, password);
+
+  // access_token of a user already logged in
+  const { access_token } = user;
+  const cookieHeader = await accessTokenCookie.serialize(access_token);
+  console.log("redirecting to /app")
+  return redirect("/app", {
+    headers: {
+        "Set-Cookie": cookieHeader,
+      },
+    });
+  } catch (error) {
+    console.log("error", error);
+    return new Response(JSON.stringify({ error: "Invalid email or password" }), {
+      status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
-  return redirect("/notes");
 };
 
 export default Login;

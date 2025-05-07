@@ -1,7 +1,17 @@
-import { createCookieSessionStorage } from "@remix-run/node";
+import { createCookie, redirect } from "@remix-run/node";
 
 const DEBUG = process.env.NODE_ENV === "development";
 const apiUrl = process.env.API_URL || "http://backend:8000";
+
+
+export const accessTokenCookie = createCookie("access_token", {
+  maxAge: 60 * 60 * 24, // 1 day
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  path: "/",
+});
+
 
 export const login = async (email: string, password: string) => {
   const formData = new URLSearchParams();
@@ -21,6 +31,7 @@ export const login = async (email: string, password: string) => {
   if (DEBUG) console.log("response", response);
   if (DEBUG) console.log("data", data);
 
+
   if (!response.ok) {
     if (data.details === "LOGIN_BAD_CREDENTIALS") {
       throw new Response(
@@ -38,27 +49,20 @@ export const login = async (email: string, password: string) => {
     );
   }
 
-  // Add the bearer token to as a cookie in the header
-  const sessionStorage = createCookieSessionStorage({
-    cookie: {
-      name: "access_token",
-      path: "/",
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      secrets: [process.env.COOKIE_SECRET || "S3cret"],
-      sameSite: "lax",
+  return data
+};
+
+export const logout = async () => {
+  const response = await fetch(`${apiUrl}/auth/jwt/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
   });
-
-  // Create a new session and set the token
-  const session = await sessionStorage.getSession();
-  session.set("access_token", data.access_token);
-
-  const headers = new Headers();
-  headers.append("Set-Cookie", await sessionStorage.commitSession(session));
-
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: headers,
+  throw redirect("/", {
+    headers: {
+      "Set-Cookie": await accessTokenCookie.serialize(""),
+    },
   });
 };
+

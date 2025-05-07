@@ -53,13 +53,13 @@ type Note = {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // See if there is a cookie with the access token
   const cookieHeader = request.headers.get("Cookie");
-  console.log(cookieHeader);
+  console.log("[MAIN] cookieHeader", cookieHeader);
   const accessToken = cookieHeader?.split("; ").find((row) =>
     row.startsWith("access_token=")
   )?.split("=")[1];
-  console.log(accessToken);
+  console.log("[MAIN] accessToken", accessToken);
   if (accessToken) {
-    return redirect("/notes");
+    return redirect("/app");
   }
 
   return null;
