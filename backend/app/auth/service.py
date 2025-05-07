@@ -34,10 +34,18 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     verification_token_secret = os.getenv("SECRET")
     verification_codes = {}  # Store verification codes
 
+
+    async def validate_user(self, user: User) -> None:
+        if not user.is_verified:
+            raise HTTPException(
+                status_code=403,
+                detail="User is not verified"
+            )
+
     def generate_verification_token(self, user: User):
         # Generate a 6 digit token
         token = ''.join(random.choices(string.digits, k=6))
-        self.verification_token_secret = token
+        self.verification_codes[str(user.id)] = token
         return token
         
     async def verify_token(self, token: str, user: User):
@@ -65,7 +73,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
             logger.debug(f"Generated verification code: {verification_code}")
             self.verification_codes[str(user.id)] = verification_code # Store the code
             logger.debug(f"Stored verification code for user {user.email}")
-            return None
+            return {"verification_code": verification_code}
         except Exception as e:
             logger.error(f"Error in verification request: {str(e)}")
             raise HTTPException(
@@ -119,6 +127,14 @@ fastapi_users = FastAPIUsers[User, UUID](get_user_manager, [auth_backend])
 
 current_active_user = fastapi_users.current_user(active=True)
 
+
+async def verified_user(user: User = Depends(current_active_user)):
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=403,
+            detail="User is not verified"
+        )
+    return user
 
 
 async def create_default_project(user: User, db: AsyncSession) -> Project:

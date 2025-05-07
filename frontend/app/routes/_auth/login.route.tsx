@@ -78,16 +78,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // Login the user
   try{
     const user = await login(email, password);
-
-  // access_token of a user already logged in
-  const { access_token } = user;
-  const cookieHeader = await accessTokenCookie.serialize(access_token);
-  console.log("redirecting to /app")
-  return redirect("/app", {
-    headers: {
-        "Set-Cookie": cookieHeader,
-      },
-    });
+    // access_token of a user already logged in
+    const { access_token } = user;
+    const cookieHeader = accessTokenCookie.serialize(access_token);
+    console.log("[API] AUTH - login() - cookieHeader", cookieHeader)
+    return redirect("/app", {
+      headers: {
+          "Set-Cookie": cookieHeader,
+        },
+      });
   } catch (error) {
     console.log("error", error);
     return new Response(JSON.stringify({ error: "Invalid email or password" }), {
