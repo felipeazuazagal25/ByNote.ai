@@ -14,7 +14,11 @@ class UserCreate(BaseUserCreate):
 # For reading user data
 class UserRead(BaseUser[UUID]):
     first_name: str
-    last_name: str  
+    last_name: str 
+    is_verified: bool
+    is_active: bool
+    is_superuser: bool
+    email: EmailStr
     # projects: Optional[List[ProjectOut]] = None
     # notes: Optional[List[NoteOut]] = None
     class Config:

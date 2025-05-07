@@ -35,12 +35,12 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     verification_codes = {}  # Store verification codes
 
 
-    async def validate_user(self, user: User) -> None:
-        if not user.is_verified:
-            raise HTTPException(
-                status_code=403,
-                detail="User is not verified"
-            )
+    # async def validate_user(self, user: User) -> None:
+    #     if not user.is_verified:
+    #         raise HTTPException(
+    #             status_code=403,
+    #             detail="User is not verified"
+    #         )
 
     def generate_verification_token(self, user: User):
         # Generate a 6 digit token
@@ -128,13 +128,13 @@ fastapi_users = FastAPIUsers[User, UUID](get_user_manager, [auth_backend])
 current_active_user = fastapi_users.current_user(active=True)
 
 
-async def verified_user(user: User = Depends(current_active_user)):
-    if not user.is_verified:
-        raise HTTPException(
-            status_code=403,
-            detail="User is not verified"
-        )
-    return user
+# async def verified_user(user: User = Depends(current_active_user)):
+#     if not user.is_verified:
+#         raise HTTPException(
+#             status_code=403,
+#             detail="User is not verified"
+#         )
+#     return user
 
 
 async def create_default_project(user: User, db: AsyncSession) -> Project:

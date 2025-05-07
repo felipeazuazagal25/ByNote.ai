@@ -1,21 +1,19 @@
-
 import { createCookie, redirect } from "@remix-run/node";
 
 const DEBUG = process.env.NODE_ENV === "development";
 const apiUrl = process.env.API_URL || "http://backend:8000";
 
-
 export const accessTokenCookie = {
-  serialize: (value: string) => `access_token=${value}; Max-Age=86400; Path=/; HttpOnly; SameSite=Lax`,
+  serialize: (value: string) =>
+    `access_token=${value}; Max-Age=86400; Path=/; HttpOnly; SameSite=Lax`,
   parse: (cookieHeader: string | null) => {
     if (!cookieHeader) return null;
     return cookieHeader
       .split("; ")
       .find((row) => row.startsWith("access_token="))
       ?.split("=")[1];
-  }
+  },
 };
-
 
 export const login = async (email: string, password: string) => {
   const formData = new URLSearchParams();
@@ -36,7 +34,6 @@ export const login = async (email: string, password: string) => {
   if (DEBUG) console.log("[API] AUTH - login() - response", response);
   if (DEBUG) console.log("[API] AUTH - login() - data", data);
 
-
   if (!response.ok) {
     if (data.details === "LOGIN_BAD_CREDENTIALS") {
       throw new Response(
@@ -53,15 +50,15 @@ export const login = async (email: string, password: string) => {
       })
     );
   }
-  return data
+  return data;
 };
 
 export const logout = async (request: Request) => {
   const cookieHeader = request.headers.get("Cookie");
-    const accessToken = cookieHeader?.split("; ").find((row) =>
-      row.startsWith("access_token=")
-    )?.split("=")[1];
-
+  const accessToken = cookieHeader
+    ?.split("; ")
+    .find((row) => row.startsWith("access_token="))
+    ?.split("=")[1];
 
   const response = await fetch(`${apiUrl}/auth/jwt/logout`, {
     method: "POST",
@@ -71,3 +68,35 @@ export const logout = async (request: Request) => {
   });
 };
 
+export const getCurrentUser = async (request: Request) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const accessToken = accessTokenCookie.parse(cookieHeader);
+
+  if (!accessToken) {
+    throw new Response(
+      JSON.stringify({
+        message: "Not authenticated",
+        ok: false,
+      }),
+      { status: 401 }
+    );
+  }
+
+  const response = await fetch(`${apiUrl}/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Response(
+      JSON.stringify({
+        message: "Failed to fetch user data",
+        ok: false,
+      }),
+      { status: response.status }
+    );
+  }
+
+  return response.json();
+};
