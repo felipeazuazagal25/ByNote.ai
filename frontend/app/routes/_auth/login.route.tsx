@@ -13,6 +13,8 @@ import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { accessTokenCookie, login } from "~/routes/api/auth";
 import { useEffect } from "react";
 import { Label } from "~/components/ui/label";
+import { AuthNav } from "./_layout";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const actionData = useActionData<typeof action>();
@@ -26,15 +28,25 @@ const Login = () => {
   // }, [actionData]);
 
   return (
-    <div className="h-full min-h-screen flex items-center justify-center">
-      <Card className="w-full max-w-md">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className="w-full max-w-md"
+    >
+      <Card>
         <CardHeader className="flex flex-row items-center justify-center">
-          <CardTitle className="text-2xl ">Login</CardTitle>
+          <CardTitle className="text-2xl">Login</CardTitle>
         </CardHeader>
-        <CardContent className="">
+        <CardContent>
           <Form method="post" className="flex flex-col gap-4">
             <Label htmlFor="email">Email</Label>
-            <Input type="email" placeholder="Email" name="email" />
+            <Input
+              type="email"
+              placeholder="Email"
+              name="email"
+              className="autofill:bg-red-800 dark:autofill:bg-gray-800"
+            />
             <Label htmlFor="password">Password</Label>
             <Input type="password" placeholder="Password" name="password" />
             <Button className="w-full" type="submit">
@@ -51,13 +63,14 @@ const Login = () => {
               className={buttonVariants({
                 variant: "outline",
               })}
+              prefetch="intent"
             >
               Sign Up
             </Link>
           </div>
         </CardFooter>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
@@ -76,23 +89,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
   }
   // Login the user
-  try{
+  try {
     const user = await login(email, password);
     // access_token of a user already logged in
     const { access_token } = user;
     const cookieHeader = accessTokenCookie.serialize(access_token);
-    console.log("[API] AUTH - login() - cookieHeader", cookieHeader)
+    console.log("[API] AUTH - login() - cookieHeader", cookieHeader);
     return redirect("/app", {
       headers: {
-          "Set-Cookie": cookieHeader,
-        },
-      });
+        "Set-Cookie": cookieHeader,
+      },
+    });
   } catch (error) {
     console.log("error", error);
-    return new Response(JSON.stringify({ error: "Invalid email or password" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "Invalid email or password" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 };
 

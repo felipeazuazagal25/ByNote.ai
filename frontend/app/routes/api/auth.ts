@@ -15,6 +15,28 @@ export const accessTokenCookie = {
   },
 };
 
+export const createUser = async (
+  first_name: string,
+  last_name: string,
+  email: string,
+  password: string
+) => {
+  const response = await fetch(`${apiUrl}/auth/register`, {
+    method: "POST",
+    body: JSON.stringify({ first_name, last_name, email, password }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (DEBUG) console.log("[API] AUTH - createUser() - response", response);
+  const data = await response.json();
+  if (DEBUG) console.log("[API] AUTH - createUser() - data", data);
+  if (data.detail === "REGISTER_USER_ALREADY_EXISTS") {
+    return { error: "User already exists" };
+  }
+  return data;
+};
+
 export const login = async (email: string, password: string) => {
   const formData = new URLSearchParams();
   formData.append("username", email);
@@ -51,6 +73,19 @@ export const login = async (email: string, password: string) => {
     );
   }
   return data;
+};
+
+export const requestUserVerification = async (email: string) => {
+  const response = await fetch(`${apiUrl}/auth/request-verify-token`, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    throw new Response(
+      JSON.stringify({ message: "Failed to request user verification" }),
+      { status: response.status }
+    );
+  }
 };
 
 export const logout = async (request: Request) => {

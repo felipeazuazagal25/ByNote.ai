@@ -82,3 +82,32 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  input:-webkit-autofill {
+    background-color: #e5e7eb !important;
+    -webkit-box-shadow: 0 0 0px 1000px #f3f4f6 inset;
+    -webkit-text-fill-color: #0f172a;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Autofill with focus */
+  input:-webkit-autofill:focus {
+    background-color: #d1d5db !important; /* Change to the desired color */
+    -webkit-box-shadow: 0 0 0px 1000px #e5e7eb inset; /* Change to the same color as background */
+    -webkit-text-fill-color: #0f172a; /* Change text color */
+  }
+
+  .dark input:-webkit-autofill {
+    background-color: #e5e7eb !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0f172a inset;
+    -webkit-text-fill-color: white;
+  }
+
+  /* Dark mode autofill with focus */
+  .dark input:-webkit-autofill:focus {
+    background-color: #4b5563 !important; /* Change to the desired dark mode color */
+    -webkit-box-shadow: 0 0 0px 1000px #1e293b inset; /* Same color as background */
+    -webkit-text-fill-color: #fefefe; /* Change text color */
+  }
+}

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 import animate from "tailwindcss-animate";
 
 export default {
@@ -76,5 +77,10 @@ export default {
       },
     },
   },
-  plugins: [animate],
+  plugins: [
+    animate,
+    plugin(function ({ addVariant }: any) {
+      addVariant("autofill", "&:-webkit-autofill");
+    }),
+  ],
 } satisfies Config;
