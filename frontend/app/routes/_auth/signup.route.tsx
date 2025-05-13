@@ -20,10 +20,32 @@ import {
 import { useEffect, useState } from "react";
 import { AuthNav } from "./_layout";
 import { motion } from "framer-motion";
+import { userInfo } from "node:os";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+const passwordPolicy = {
+  minLength: false,
+  hasUppercase: false,
+  hasLowercase: false,
+  hasNumber: false,
+  hasSpecialChar: false,
+};
+
+const checkPasswordPolicy = (password: string) => {
+  const passObj = { ...passwordPolicy };
+  passObj.minLength = password.length >= 8;
+  passObj.hasUppercase = /[A-Z]/.test(password);
+  passObj.hasLowercase = /[a-z]/.test(password);
+  passObj.hasNumber = /\d/.test(password);
+  passObj.hasSpecialChar = /[!@#$%^&*]/.test(password);
+  return passObj;
+};
 
 const Signup = () => {
   const actionData = useActionData<{ error: string }>();
   const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordPolicyObject, setPasswordPolicyObject] =
+    useState(passwordPolicy);
 
   useEffect(() => {
     console.log("actionData", actionData);
@@ -32,6 +54,11 @@ const Signup = () => {
     }
     console.log("error", error);
   }, [actionData, error]);
+
+  useEffect(() => {
+    const passObj = checkPasswordPolicy(password);
+    setPasswordPolicyObject(passObj);
+  }, [password]);
 
   return (
     <motion.div
@@ -68,20 +95,76 @@ const Signup = () => {
               name="email"
               autoComplete="email"
             />
+
             <Label htmlFor="password">Password</Label>
             <Input
               type="password"
               placeholder="Password"
               name="password"
               autoComplete="new-password"
+              onChange={(e) => {
+                const password = e.target.value;
+                setPassword(password);
+              }}
             />
             <Input
               type="password"
               placeholder="Confirm Password"
               name="password_confirmation"
-              autoComplete="new-password"
+              autoComplete="off"
             />
-            <Button className="w-full" type="submit">
+
+            <div className="flex flex-col gap-2 text-sm text-gray-500">
+              {/* dynamic list of password policy requirements */}
+              <ul>
+                <PasswordPolicyComponent
+                  satisfies={passwordPolicyObject.minLength}
+                  active={password !== ""}
+                >
+                  <span>At least 8 characters long</span>
+                </PasswordPolicyComponent>
+
+                <PasswordPolicyComponent
+                  satisfies={passwordPolicyObject.hasUppercase}
+                  active={password !== ""}
+                >
+                  <span>At least one uppercase letter</span>
+                </PasswordPolicyComponent>
+
+                <PasswordPolicyComponent
+                  satisfies={passwordPolicyObject.hasLowercase}
+                  active={password !== ""}
+                >
+                  <span>At least one lowercase letter</span>
+                </PasswordPolicyComponent>
+
+                <PasswordPolicyComponent
+                  satisfies={passwordPolicyObject.hasNumber}
+                  active={password !== ""}
+                >
+                  <span>At least one number</span>
+                </PasswordPolicyComponent>
+
+                <PasswordPolicyComponent
+                  satisfies={passwordPolicyObject.hasSpecialChar}
+                  active={password !== ""}
+                >
+                  <span>At least one special character</span>
+                </PasswordPolicyComponent>
+              </ul>
+            </div>
+
+            <Button
+              className="w-full"
+              type="submit"
+              disabled={
+                !passwordPolicyObject.minLength ||
+                !passwordPolicyObject.hasUppercase ||
+                !passwordPolicyObject.hasLowercase ||
+                !passwordPolicyObject.hasNumber ||
+                !passwordPolicyObject.hasSpecialChar
+              }
+            >
               Sign Up
             </Button>
           </Form>
@@ -117,12 +200,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const last_name = formData.get("last_name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const password_confirmation = formData.get("password_confirmation") as string;
 
   if (!first_name || !last_name || !email || !password) {
     return new Response(JSON.stringify({ error: "Missing required fields" }), {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  if (password !== password_confirmation) {
+    return new Response(JSON.stringify({ error: "Passwords do not match" }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Check if password satifies the password policy
 
   const newUser = await createUser(first_name, last_name, email, password);
 
@@ -148,4 +240,32 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       "Set-Cookie": cookieHeader,
     },
   });
+};
+
+const PasswordPolicyComponent = ({
+  children,
+  satisfies,
+  active,
+}: {
+  children: React.ReactNode;
+  satisfies: boolean;
+  active: boolean;
+}) => {
+  return (
+    <li
+      className={`transition-colors duration-300 flex items-center gap-1 ${
+        active
+          ? satisfies
+            ? "text-green-500"
+            : "text-red-500"
+          : "text-gray-500"
+      }`}
+    >
+      <div className="w-4 h-4">
+        {/*  */}
+        {active ? satisfies ? <CheckCircleIcon /> : <XCircleIcon /> : null}
+      </div>
+      {children}
+    </li>
+  );
 };

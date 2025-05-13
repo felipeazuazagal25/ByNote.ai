@@ -4,6 +4,16 @@ import { getProjects } from "../api/projects";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { buttonVariants } from "~/components/ui/button";
 import { getCurrentUser } from "../api/auth";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarProvider,
+} from "~/components/ui/sidebar";
 
 const DEBUG = process.env.NODE_ENV === "development";
 
@@ -45,18 +55,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 const Layout = () => {
   const { loadDefaultApp, projects } = useLoaderData<typeof loader>();
   return (
-    <GridBackground>
-      <div className="relative flex min-h-screen items-center justify-center">
-        <div>
-          <Link to="/logout" className={buttonVariants({ variant: "outline" })}>
-            Logout
-          </Link>
+    <SidebarProvider>
+      <GridBackground>
+        <div className="relative flex min-h-screen items-center justify-center">
+          <div className="w-full h-full flex justify-center items-center">
+            <AppSidebar />
+            {loadDefaultApp ? <DefaultApp /> : <Outlet />}
+          </div>
         </div>
-        <div className="w-full h-full flex justify-center items-center">
-          {loadDefaultApp ? <DefaultApp /> : <Outlet />}
-        </div>
-      </div>
-    </GridBackground>
+      </GridBackground>
+    </SidebarProvider>
   );
 };
 
@@ -66,6 +74,26 @@ const DefaultApp = () => {
   return (
     <div className="w-full h-ful l flex justify-center items-center">
       <h1>Default App</h1>
+      <Link to="/logout" className={buttonVariants({ variant: "outline" })}>
+        Logout
+      </Link>
     </div>
+  );
+};
+
+const AppSidebar = () => {
+  return (
+    <Sidebar className="h-full bg-gray-50 dark:bg-red-600">
+      <SidebarHeader />
+      <SidebarContent className="bg-gray-50 dark:bg-gray-900">
+        <SidebarGroup>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <Link to="/projects">Projects</Link>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter />
+    </Sidebar>
   );
 };
