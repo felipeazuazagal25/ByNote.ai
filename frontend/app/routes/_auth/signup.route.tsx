@@ -235,7 +235,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { access_token } = user;
   const cookieHeader = accessTokenCookie.serialize(access_token);
   console.log("[API] AUTH - login() - cookieHeader", cookieHeader);
-  return redirect("/app", {
+  return redirect("/verify", {
     headers: {
       "Set-Cookie": cookieHeader,
     },

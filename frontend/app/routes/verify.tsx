@@ -1,10 +1,14 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { getCurrentUser } from "./api/auth";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { getCurrentUser, requestUserVerification } from "./api/auth";
 import GridBackground from "~/components/ui/grid-background";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { Link } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
@@ -50,9 +54,9 @@ const Verify = () => {
             <Separator />
             <div className="flex items-center gap-2">
               Didn't receive the email?{" "}
-              <Button variant="link" className="p-0">
-                Resend Verification Email
-              </Button>
+              <Form method="post">
+                <Button type="submit">Resend Verification Email</Button>
+              </Form>
             </div>
           </CardContent>
         </Card>
@@ -62,3 +66,20 @@ const Verify = () => {
 };
 
 export default Verify;
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const user = await getCurrentUser(request);
+  if (!user) {
+    return redirect("/login");
+  }
+  try {
+    const response = await requestUserVerification(user.email);
+    console.log("[VERIFY ROUTE] response", response);
+  } catch (error) {
+    console.error("[VERIFY ROUTE] error", error);
+  }
+  return new Response(JSON.stringify({ message: "Verification email sent" }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+};

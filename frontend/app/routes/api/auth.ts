@@ -79,6 +79,9 @@ export const requestUserVerification = async (email: string) => {
   const response = await fetch(`${apiUrl}/auth/request-verify-token`, {
     method: "POST",
     body: JSON.stringify({ email }),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
   if (!response.ok) {
     throw new Response(
