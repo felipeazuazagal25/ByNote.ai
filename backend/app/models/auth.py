@@ -10,11 +10,12 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 
 if TYPE_CHECKING:
-    from app.models import Project
+    from app.models import Workspace
     from app.models import Tag
     from app.models import Session
     from app.models import Embedding
     from app.models import Chat
+
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
@@ -33,12 +34,13 @@ class User(SQLAlchemyBaseUserTable[int], Base):
     embeddings: Mapped[List['Embedding']] = relationship(back_populates='user', cascade="all, delete-orphan")
 
     # Relationship to the Project table
-    projects: Mapped[List["Project"]] = relationship(back_populates="user", cascade="all, delete-orphan", foreign_keys="Project.user_id")
+    workspaces: Mapped[List["Workspace"]] = relationship(back_populates="user", cascade="all, delete-orphan", foreign_keys="Workspace.user_id")
     tags: Mapped[List["Tag"]] = relationship(back_populates="user", cascade="all, delete-orphan") 
     sessions: Mapped[List["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
-    # Default project
-    default_project_id: Mapped[uuid.UUID] = mapped_column(default="12345678-1234-5678-1234-567812345678")
+    # Default workspace and project
+    default_workspace_id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4())
+    default_project_id: Mapped[uuid.UUID] = mapped_column(default=uuid.uuid4())
 
     # Relationship to the Chat table
     chats: Mapped[List["Chat"]] = relationship(back_populates="user", cascade="all, delete-orphan")

@@ -19,6 +19,8 @@ class UserRead(BaseUser[UUID]):
     is_active: bool
     is_superuser: bool
     email: EmailStr
+    default_workspace_id: UUID
+    default_project_id: UUID
     # projects: Optional[List[ProjectOut]] = None
     # notes: Optional[List[NoteOut]] = None
     class Config:

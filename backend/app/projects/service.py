@@ -53,9 +53,9 @@ async def delete_project(project_id: uuid.UUID, db: AsyncSession, user: User):
     await db.commit()
     return {"message": "Project deleted successfully"}
 
-async def create_default_project(db: AsyncSession, user: User) -> Project:
-    default_project = Project(name="Inbox", description="Inbox", is_archived=False, is_shared=False, ui_color="#000000", ui_icon="🔍", ui_theme="light", ui_font="sans-serif", user_id=user.id)
-    db.add(default_project)
-    await db.commit()
-    await db.refresh(default_project)
-    return default_project
+# async def create_default_project(db: AsyncSession, user: User) -> Project:
+#     default_project = Project(name="Inbox", description="Inbox", is_archived=False, is_shared=False, ui_color="#000000", ui_icon="🔍", ui_theme="light", ui_font="sans-serif", user_id=user.id)
+#     db.add(default_project)
+#     await db.commit()
+#     await db.refresh(default_project)
+#     return default_project

@@ -54,7 +54,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
         db = await get_db_session()  # Get the database session
         try:
             user_in_session = await db.get(User, user.id)
-            await create_default_project(user_in_session, db)
+            await create_default_workspace_and_project(user_in_session, db)
             print(f"User {user.id} has registered.")
         finally:
             await db.close()
@@ -99,34 +99,47 @@ current_active_user = fastapi_users.current_user(active=True)
 
 
 async def create_default_workspace_and_project(user: User, db: AsyncSession) -> Tuple[Project, Workspace]:
+
+    # Create default workspace
     default_workspace_name = user.first_name + "'s Workspace"
     default_workspace_description = "This is the default workspace for " + user.first_name + "."
     db_workspace = Workspace(name=default_workspace_name, 
                              description=default_workspace_description, 
                              is_archived=False, 
                              is_shared=False, 
-                             is_deleted=False, 
+                             is_deleted=False,
+                             ui_color="#000000",
+                             ui_icon="🔍",
+                             ui_theme="light",
+                             ui_font="sans-serif",
                              user_id=user.id)
-    
+    db.add(db_workspace)
+    await db.flush()  # This will generate the workspace ID
+    await db.refresh(db_workspace)
+
+    # Create default project
     db_project = Project(name="Inbox", 
                          description="Inbox", 
                          is_archived=False, 
                          is_shared=False, 
+                         is_deleted=False,
                          ui_color="#000000", 
                          ui_icon="🔍", 
                          ui_theme="light", 
                          ui_font="sans-serif", 
-                         user_id=user.id)
+                         workspace_id=db_workspace.id)
     db.add(db_project)
     await db.flush()  # This will generate the project ID
+    await db.refresh(db_project)
     
-    # Update user with the new project ID
+    # Update user with the new workspace and project IDs
+    user.default_workspace_id = db_workspace.id
     user.default_project_id = db_project.id
+    
     db.add(user)
     await db.commit()
-    await db.refresh(db_project)
     await db.refresh(user)
     
-    return db_project, db_workspace
+    return (db_project, db_workspace)
         
         

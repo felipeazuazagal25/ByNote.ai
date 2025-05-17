@@ -1,7 +1,4 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy import text
-from sqlalchemy.orm import Session
-from app.dependencies import get_db
+from fastapi import FastAPI
 import logging
 import sys
 
@@ -12,7 +9,7 @@ from app.projects import projects_router
 from app.tags import tags_router
 from app.embeddings import embeddings_router
 from app.tasks import tasks_router
-
+from app.workspaces import workspaces_router
 
 # Console logging
 logging.basicConfig(
@@ -37,19 +34,13 @@ app.include_router(projects_router)
 app.include_router(tags_router)
 app.include_router(embeddings_router)
 app.include_router(tasks_router)
+app.include_router(workspaces_router)
+
 
 @app.get("/")
 async def root():
-    return {"message": "this is the backend"}
+    return {"message": "This is the backend for ByNote."}
 
 @app.get('/health')
 async def health():
     return {"message": "ok"}
-
-
-@app.get('/dbtest')
-async def dbtest(db: Session = Depends(get_db)):
-    query = text('SELECT 1')
-    db.execute(query)
-    return {"message": "dbtest"}
-
