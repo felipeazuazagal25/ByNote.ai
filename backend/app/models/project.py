@@ -10,7 +10,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import UniqueConstraint
 
 if TYPE_CHECKING:
-    from app.models import User
+    from app.models import Workspace
     from app.models import ProjectTag
     from app.models import Note
     from app.models import Tag
@@ -35,11 +35,12 @@ class Project(Base):
             self._slug = slugify("Untitled")
 
     __table_args__ = (
-        UniqueConstraint('user_id', '_slug', name='uq_user_project_slug'),
+        UniqueConstraint('workspace_id', '_slug', name='uq_workspace_project_slug'),
     )
 
     # Flags
     is_archived: Mapped[bool] = mapped_column(nullable=False)
+    is_deleted: Mapped[bool] = mapped_column(nullable=False)
     is_shared: Mapped[bool] = mapped_column(nullable=False)
 
     # UI
@@ -50,10 +51,11 @@ class Project(Base):
     
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    deleted_at: Mapped[datetime] = mapped_column(nullable=True)
 
-    # Relationship to the user table
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('users.id'), nullable=False)
-    user: Mapped["User"] = relationship(back_populates="projects")
+    # Relationship to the workspace table
+    workspace_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('workspaces.id'), nullable=False)
+    workspace: Mapped["Workspace"] = relationship(back_populates="projects")
 
     # Relationship to the ProjectTag table
     projects_tags: Mapped[List["ProjectTag"]] = relationship(back_populates="project", lazy="selectin", cascade="all, delete-orphan")

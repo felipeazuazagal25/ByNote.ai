@@ -8,7 +8,7 @@ from app.dependencies import get_db, get_db_session
 from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 import os
-from typing import Optional 
+from typing import Optional, Tuple
 from pathlib import Path
 from dotenv import load_dotenv
 from uuid import UUID
@@ -16,7 +16,7 @@ import logging
 import random
 import string
 from typing import TYPE_CHECKING
-from app.models import Project
+from app.models import Project, Workspace
 
     
 
@@ -98,8 +98,25 @@ current_active_user = fastapi_users.current_user(active=True)
 #     return user
 
 
-async def create_default_project(user: User, db: AsyncSession) -> Project:
-    db_project = Project(name="Inbox", description="Inbox", is_archived=False, is_shared=False, ui_color="#000000", ui_icon="🔍", ui_theme="light", ui_font="sans-serif", user_id=user.id)
+async def create_default_workspace_and_project(user: User, db: AsyncSession) -> Tuple[Project, Workspace]:
+    default_workspace_name = user.first_name + "'s Workspace"
+    default_workspace_description = "This is the default workspace for " + user.first_name + "."
+    db_workspace = Workspace(name=default_workspace_name, 
+                             description=default_workspace_description, 
+                             is_archived=False, 
+                             is_shared=False, 
+                             is_deleted=False, 
+                             user_id=user.id)
+    
+    db_project = Project(name="Inbox", 
+                         description="Inbox", 
+                         is_archived=False, 
+                         is_shared=False, 
+                         ui_color="#000000", 
+                         ui_icon="🔍", 
+                         ui_theme="light", 
+                         ui_font="sans-serif", 
+                         user_id=user.id)
     db.add(db_project)
     await db.flush()  # This will generate the project ID
     
@@ -110,6 +127,6 @@ async def create_default_project(user: User, db: AsyncSession) -> Project:
     await db.refresh(db_project)
     await db.refresh(user)
     
-    return db_project
+    return db_project, db_workspace
         
         
