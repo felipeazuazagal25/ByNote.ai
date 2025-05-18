@@ -127,14 +127,75 @@ export const getCurrentUser = async (request: Request) => {
   });
 
   if (!response.ok) {
-    throw new Response(
-      JSON.stringify({
-        message: "Failed to fetch user data",
-        ok: false,
-      }),
-      { status: response.status }
-    );
+    redirect("/login", {
+      headers: {
+        "Set-Cookie": accessTokenCookie.serialize(""),
+      },
+    });
+    // throw new Response(
+    //   JSON.stringify({
+    //     message: "Failed to fetch user data",
+    //     ok: false,
+    //   }),
+    //   { status: response.status }
+    // );
+  }
+  const data = await response.json();
+  if (data.detail === "Unauthorized") {
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": accessTokenCookie.serialize(""),
+      },
+    });
   }
 
-  return response.json();
+  return data;
+};
+
+export const authFetch = async (
+  request: Request,
+  url: string,
+  options: {
+    method: string;
+    body?: any;
+    headers?: Record<string, string>;
+  }
+) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const accessToken = accessTokenCookie.parse(cookieHeader);
+
+  if (!accessToken) {
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": accessTokenCookie.serialize(""),
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  const response = await fetch(`${apiUrl}${url}`, {
+    method: options.method,
+    body: options.body,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+  if (response.status === 401) {
+    throw redirect("/login", {
+      headers: {
+        "Set-Cookie": accessTokenCookie.serialize(""),
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  const user = await getCurrentUser(request);
+  if (!user.is_verified) {
+    throw redirect("/verify");
+  }
+
+  return response;
 };

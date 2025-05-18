@@ -67,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
           <button
             onClick={toggleTheme}
-            className="fixed bottom-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:ring-2 hover:ring-blue-400 transition-all"
+            className="z-20 fixed bottom-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:ring-2 hover:ring-blue-400 transition-all"
           >
             {theme === "light" ? "🌙" : "☀️"}
           </button>
