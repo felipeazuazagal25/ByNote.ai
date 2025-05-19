@@ -111,13 +111,11 @@ export const getCurrentUser = async (request: Request) => {
   const accessToken = accessTokenCookie.parse(cookieHeader);
 
   if (!accessToken) {
-    throw new Response(
-      JSON.stringify({
-        message: "Not authenticated",
-        ok: false,
-      }),
-      { status: 401 }
-    );
+    redirect("/login", {
+      headers: {
+        "Set-Cookie": accessTokenCookie.serialize(""),
+      },
+    });
   }
 
   const response = await fetch(`${apiUrl}/auth/me`, {

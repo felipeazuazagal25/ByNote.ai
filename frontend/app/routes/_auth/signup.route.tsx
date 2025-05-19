@@ -69,8 +69,8 @@ const Signup = () => {
       className="w-full max-w-md"
     >
       <Card>
-        <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-center">
+          <CardTitle className="text-2xl font-serif">Sign Up</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Form method="post" className="flex flex-col gap-4">

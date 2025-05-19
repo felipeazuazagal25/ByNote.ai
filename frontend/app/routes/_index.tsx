@@ -94,7 +94,7 @@ export default function Index() {
             <div className="relative hover:scale-105 transition-all duration-300 hover:shadow-xl">
               <Card className="max-w-md w-full sm:max-w-lg">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold text-center">
+                  <CardTitle className="text-2xl font-bold text-center font-serif">
                     ByNote
                   </CardTitle>
                   <CardDescription>
@@ -178,7 +178,7 @@ const Header = () => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <div className="text-2xl font-bold text-center">ByNote</div>
+        <div className="text-2xl font-bold text-center font-serif">ByNote</div>
         <div className="flex items-center gap-2">
           <Link to="/login" className={buttonVariants({ variant: "ghost" })}>
             Login

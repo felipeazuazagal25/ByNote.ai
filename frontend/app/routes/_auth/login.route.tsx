@@ -9,12 +9,55 @@ import {
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Form, Link, useActionData, useNavigate } from "@remix-run/react";
-import { ActionFunctionArgs, redirect } from "@remix-run/node";
-import { accessTokenCookie, login } from "~/routes/api/auth";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { accessTokenCookie, getCurrentUser, login } from "~/routes/api/auth";
 import { useEffect } from "react";
 import { Label } from "~/components/ui/label";
 import { AuthNav } from "./_layout";
 import { motion } from "framer-motion";
+
+const API_URL = process.env.API_URL;
+
+export const loader = async ({ request }: { request: Request }) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const accessToken = accessTokenCookie.parse(cookieHeader);
+
+  if (!accessToken) {
+    return null;
+  }
+
+  const response = await fetch(`${API_URL}/auth/me`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    redirect("/login", {
+      headers: {
+        "Set-Cookie": accessTokenCookie.serialize(""),
+      },
+    });
+    // throw new Response(
+    //   JSON.stringify({
+    //     message: "Failed to fetch user data",
+    //     ok: false,
+    //   }),
+    //   { status: response.status }
+    // );
+  }
+
+  const data = await response.json();
+  if (data.detail === "Unauthorized") {
+    return null;
+  }
+
+  return redirect("/app", {
+    headers: {
+      "Set-Cookie": accessTokenCookie.serialize(accessToken),
+    },
+  });
+};
 
 const Login = () => {
   const actionData = useActionData<typeof action>();
@@ -36,7 +79,7 @@ const Login = () => {
     >
       <Card>
         <CardHeader className="flex flex-row items-center justify-center">
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl font-serif">Login</CardTitle>
         </CardHeader>
         <CardContent>
           <Form method="post" className="flex flex-col gap-4">

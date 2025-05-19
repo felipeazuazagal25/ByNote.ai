@@ -9,6 +9,7 @@ import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
 import { useState, useEffect } from "react";
+import { useUIState } from "./hooks/useUIState";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -55,7 +56,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <html lang="en" className="h-full font-serif">
+    <html lang="en" className="h-full ">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -80,5 +81,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const [showSidebar, setShowSidebar] = useUIState("showSidebar", true);
+
+  return (
+    <Outlet
+      context={{
+        showSidebar,
+        setShowSidebar,
+      }}
+    />
+  );
 }
