@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel,computed_field
 from typing import Optional
 import uuid
 from datetime import datetime
@@ -38,8 +38,9 @@ class WorkspaceOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
-
-    projects: List[ProjectOut]
+    topNProjects:List[ProjectOut]
+    topNNotes:Optional[List[ProjectOut]] = None
 
     class Config:
         from_attributes = True
+        extra = "allow"

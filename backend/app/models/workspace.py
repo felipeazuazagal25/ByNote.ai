@@ -5,7 +5,6 @@ import uuid
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from typing import TYPE_CHECKING, List
-from slugify import slugify
 from sqlalchemy.ext.hybrid import hybrid_property
 
 if TYPE_CHECKING:
@@ -41,7 +40,8 @@ class Workspace(Base):
 
     # Relationship to the Project table
     projects: Mapped[List["Project"]] = relationship(back_populates="workspace", lazy="selectin", cascade="all, delete-orphan")
-
+    def get_topNProjects(self, n: int = 5) -> List["Project"]:
+        return sorted(self.projects, key=lambda p: p.updated_at, reverse=True)[:n]
 
     def __repr__(self) -> str:
         return f"<Workspace {self.name}>"

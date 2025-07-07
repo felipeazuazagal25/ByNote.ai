@@ -20,7 +20,7 @@ import {
 import { CreateNoteShortcuts, CreateProjectShortcuts } from "~/utils/shortcuts";
 import ButtonWithShortcut from "~/components/ui/button-shortchut";
 import { getWorkspace } from "../api/workspaces";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { MenuIcon } from "lucide-react";
 
@@ -47,10 +47,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 const Layout = () => {
-  const { showSidebar, setShowSidebar } = useOutletContext<{
-    showSidebar: boolean;
-    setShowSidebar: (showSidebar: boolean) => void;
-  }>();
+  const loaderData = useLoaderData<LoaderFunctionArgs>();
+  const [showSidebar, setShowSidebar] = useState(true);
+
+  useEffect(() => {
+    console.log("this is loaderData", loaderData);
+  }, []);
 
   const { loadDefaultApp, workspace } = useLoaderData<typeof loader>();
   return (
@@ -146,6 +148,9 @@ const AppSidebar = ({
                 shortcuts={CreateNoteShortcuts}
                 OS="macOS"
                 variant="default"
+                onClick={() => {
+                  console.log("Creating New Note...");
+                }}
               >
                 New Note
               </ButtonWithShortcut>
@@ -153,6 +158,9 @@ const AppSidebar = ({
                 shortcuts={CreateProjectShortcuts}
                 OS="macOS"
                 variant="outline"
+                onClick={() => {
+                  console.log("Creating New Project...");
+                }}
               >
                 New Project
               </ButtonWithShortcut>

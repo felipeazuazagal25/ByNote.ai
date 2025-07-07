@@ -1,4 +1,5 @@
 from app.workspaces.schemas import WorkspaceCreate, WorkspaceUpdate, WorkspaceOut
+from app.projects.schemas import ProjectOut
 from app.models import Workspace
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
@@ -25,6 +26,9 @@ async def get_workspace(workspace_id: uuid.UUID, db: AsyncSession, user: User):
         db_workspace = response.scalar_one_or_none()
         if not db_workspace:
             raise HTTPException(status_code=404, detail="Workspace not found")
+        # Add the topNProjects
+        db_workspace.topNProjects = [p for p in db_workspace.get_topNProjects(5)]
+        
         return db_workspace
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

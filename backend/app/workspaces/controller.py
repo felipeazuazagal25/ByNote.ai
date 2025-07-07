@@ -22,7 +22,7 @@ async def get_workspaces_route(db: AsyncSession = Depends(get_db), user: User = 
 
 
 @router.get("/{workspace_id}", response_model=WorkspaceOut)
-async def get_workspace_route(workspace_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+async def get_workspace_route(workspace_id: uuid.UUID, topN:int = 0, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     return await get_workspace(workspace_id, db, user)
 
 
