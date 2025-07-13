@@ -1,11 +1,14 @@
 import { createCookie, redirect } from "@remix-run/node";
 
 const DEBUG = process.env.NODE_ENV === "development";
+const PRODUCTION = process.env.NODE_ENV === "production";
 const apiUrl = process.env.API_URL || "http://backend:8000";
 
 export const accessTokenCookie = {
   serialize: (value: string) =>
-    `access_token=${value}; Max-Age=86400; Path=/; HttpOnly; SameSite=Lax`,
+    `access_token=${value}; Max-Age=86400; Path=/; HttpOnly; SameSite=Lax ${
+      PRODUCTION && "; Secure"
+    }`,
   parse: (cookieHeader: string | null) => {
     if (!cookieHeader) return null;
     return cookieHeader

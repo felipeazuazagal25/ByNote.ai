@@ -11,6 +11,7 @@ export type Workspace = {
   updated_at: Date;
   deleted_at: Date;
   projects: Project[]; // Replace this for the top5 projects
-  top5projects: any[] | null;
+  topNProjects: any[] | null;
+  topNNotes: any[] | null;
   //   top5notes: any[] | null;
 };
