@@ -31,6 +31,7 @@ class WorkspaceUpdate(BaseModel):
 class WorkspaceOut(BaseModel):
     id: uuid.UUID
     name: str
+    slug:str
     description: str
     is_archived: bool
     is_shared: bool

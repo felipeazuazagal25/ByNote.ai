@@ -15,7 +15,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return redirect("/login");
   }
   if (user.is_verified) {
-    return redirect("/app");
+    return redirect("/");
   }
 
   return null;

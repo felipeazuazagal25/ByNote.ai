@@ -6,6 +6,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from typing import TYPE_CHECKING, List
 from sqlalchemy.ext.hybrid import hybrid_property
+from slugify import slugify
 
 if TYPE_CHECKING:
     from app.models import User
@@ -16,7 +17,19 @@ class Workspace(Base):
     __tablename__ = "workspaces"
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False)
+    _slug: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
+
+    @hybrid_property
+    def slug(self) -> str:
+        return self._slug
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if 'title' in kwargs:
+            self._slug = slugify(kwargs['name'])
+        else:
+            self._slug = slugify("untitled")
 
     # Flags
     is_archived: Mapped[bool] = mapped_column(nullable=False, default=False)

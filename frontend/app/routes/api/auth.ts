@@ -109,12 +109,15 @@ export const logout = async (request: Request) => {
   });
 };
 
-export const getCurrentUser = async (request: Request) => {
+export const getCurrentUser = async (
+  request: Request,
+  redirectLink: string = "/login"
+) => {
   const cookieHeader = request.headers.get("Cookie");
   const accessToken = accessTokenCookie.parse(cookieHeader);
 
   if (!accessToken) {
-    redirect("/login", {
+    redirect(redirectLink, {
       headers: {
         "Set-Cookie": accessTokenCookie.serialize(""),
       },
@@ -128,7 +131,7 @@ export const getCurrentUser = async (request: Request) => {
   });
 
   if (!response.ok) {
-    redirect("/login", {
+    redirect(redirectLink, {
       headers: {
         "Set-Cookie": accessTokenCookie.serialize(""),
       },
@@ -143,7 +146,7 @@ export const getCurrentUser = async (request: Request) => {
   }
   const data = await response.json();
   if (data.detail === "Unauthorized") {
-    throw redirect("/login", {
+    throw redirect(redirectLink, {
       headers: {
         "Set-Cookie": accessTokenCookie.serialize(""),
       },

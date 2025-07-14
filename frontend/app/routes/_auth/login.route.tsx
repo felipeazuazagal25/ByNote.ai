@@ -13,8 +13,9 @@ import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { accessTokenCookie, getCurrentUser, login } from "~/routes/api/auth";
 import { useEffect } from "react";
 import { Label } from "~/components/ui/label";
-import { AuthNav } from "./_layout";
 import { motion } from "framer-motion";
+import { Alert, AlertTitle, AlertDescription } from "~/components/ui/alert";
+import { AlertCircleIcon } from "lucide-react";
 
 const API_URL = process.env.API_URL;
 
@@ -52,7 +53,7 @@ export const loader = async ({ request }: { request: Request }) => {
     return null;
   }
 
-  return redirect("/app", {
+  return redirect("/", {
     headers: {
       "Set-Cookie": accessTokenCookie.serialize(accessToken),
     },
@@ -63,12 +64,12 @@ const Login = () => {
   const actionData = useActionData<typeof action>();
   // const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   console.log("actionData", actionData);
-  //   if (actionData?.user) {
-  //     console.log("user", actionData.user);
-  //   }
-  // }, [actionData]);
+  useEffect(() => {
+    console.log("actionData", actionData);
+    if (actionData?.user) {
+      console.log("user", actionData.user);
+    }
+  }, [actionData]);
 
   return (
     <motion.div
@@ -96,6 +97,13 @@ const Login = () => {
               Login
             </Button>
           </Form>
+          {actionData?.error && (
+            <Alert variant="destructive" className="text-red-400 mt-4">
+              <AlertTitle>
+                Email or/and password were incorrect. Please try again.
+              </AlertTitle>
+            </Alert>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Separator />

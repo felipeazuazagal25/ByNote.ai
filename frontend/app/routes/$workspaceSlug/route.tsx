@@ -9,14 +9,15 @@ import Navbar from "~/components/navbar/navbar";
 
 const DEBUG = process.env.NODE_ENV === "development";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const url = new URL(request.url).pathname;
+  const workspaceId = params.workspaceSlug;
   const user = await getCurrentUser(request);
   const { id, default_workspace_id, default_project_id, ...userInfo } = user;
   const defaultWorkspaceId = user.default_workspace_id;
 
   // Identify the page to load
-  const url = new URL(request.url).pathname;
-  if (url === "/app") {
+  if (url === "/") {
     // Default behavior when user is logged in
     const workspace = await getWorkspace(request, defaultWorkspaceId);
     if (DEBUG) console.log("workspace", workspace);
@@ -28,8 +29,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         },
       }
     );
+  } else if (workspaceId) {
+    const workspace = await getWorkspace(request, defaultWorkspaceId);
+    if (DEBUG) console.log("workspace", workspace);
+    return new Response(
+      JSON.stringify({ loadDefaultApp: true, workspace, userInfo }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   } else {
-    return { loadDefaultApp: false, workspace: null };
+    return { loadDefaultApp: false, workspace: null, userInfo };
   }
 };
 

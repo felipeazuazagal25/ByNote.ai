@@ -3,6 +3,7 @@ import type { Project } from "./projects";
 export type Workspace = {
   id: string;
   name: string;
+  slug: string;
   description: string;
   is_archived: boolean;
   is_shared: boolean;

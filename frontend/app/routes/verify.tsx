@@ -24,7 +24,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getCurrentUser(request);
   console.log("[API] VERIFY - loader() - user", user);
   if (user.is_verified) {
-    return redirect("/app");
+    return redirect("/");
   }
   return null;
 };
@@ -44,10 +44,7 @@ const Verify = () => {
             </div>
             <div className="flex items-center gap-2">
               Already Veryfied?{" "}
-              <Link
-                className={buttonVariants({ variant: "outline" })}
-                to="/app"
-              >
+              <Link className={buttonVariants({ variant: "outline" })} to="/">
                 Click Here
               </Link>
             </div>
