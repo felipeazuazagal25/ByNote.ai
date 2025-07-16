@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from typing import TYPE_CHECKING, List
 from sqlalchemy.ext.hybrid import hybrid_property
 from slugify import slugify
+from sqlalchemy import UniqueConstraint
 
 if TYPE_CHECKING:
     from app.models import User
@@ -26,7 +27,7 @@ class Workspace(Base):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if 'title' in kwargs:
+        if 'name' in kwargs:
             self._slug = slugify(kwargs['name'])
         else:
             self._slug = slugify("untitled")
@@ -64,5 +65,12 @@ class Workspace(Base):
 
     def __hash__(self) -> int:
         return hash(self.id)
+    
+
+    # Constraints to the table
+    __table_args__ = (
+        UniqueConstraint('user_id', '_slug', name='uq_workspace_slug_per_user'),
+    )
+
 
 

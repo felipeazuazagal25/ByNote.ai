@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (AuthenticationBackend,
                                           BearerTransport,
@@ -13,8 +13,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from uuid import UUID
 import logging
-import random
-import string
 from typing import TYPE_CHECKING
 from app.models import Project, Workspace
 
@@ -33,7 +31,6 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     reset_password_token_secret = os.getenv("SECRET")
     verification_token_secret = os.getenv("SECRET")
     verification_codes = {}  # Store verification codes
-
 
     # async def validate_user(self, user: User) -> None:
     #     if not user.is_verified:
@@ -101,11 +98,11 @@ current_active_user = fastapi_users.current_user(active=True)
 async def create_default_workspace_and_project(user: User, db: AsyncSession) -> Tuple[Project, Workspace]:
 
     # Create default workspace
-    default_workspace_name = user.first_name + "'s Workspace"
-    default_workspace_description = "This is the default workspace for " + user.first_name + "."
+    default_workspace_name = "Personal"
+    default_workspace_description = "This is the personal workspace for " + user.first_name + "."
     db_workspace = Workspace(name=default_workspace_name, 
                              description=default_workspace_description, 
-                             is_archived=False, 
+                             is_archived=False,
                              is_shared=False, 
                              is_deleted=False,
                              ui_color="#000000",

@@ -15,8 +15,9 @@ async def create_project(project: ProjectCreate, db: AsyncSession = Depends(get_
     await db.refresh(db_project)
     return db_project
 
-async def get_projects(db: AsyncSession, user: User):
-    response = await db.execute(select(Project).where(Project.user_id == user.id))
+async def get_projects(workspace_id: str,db: AsyncSession, user: User):
+    query = select(Project).where(Project.workspace_id == workspace_id)
+    response = await db.execute(query)
     projects = response.scalars().all()
     return projects
 

@@ -39,8 +39,8 @@ class WorkspaceOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
-    topNProjects:List[ProjectOut]
-    topNNotes:Optional[List[ProjectOut]] = None
+    topNProjects: List[ProjectOut] = None
+    topNNotes: Optional[List[ProjectOut]] = None
 
     class Config:
         from_attributes = True

@@ -6,7 +6,9 @@ import {
   AccordionContent,
 } from "../ui/accordion";
 import { Link, NavLink } from "@remix-run/react";
-import { Button, buttonVariants } from "../ui/button";
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
+import { Separator } from "../ui/separator";
 
 export const ObjectGroup = ({
   objects,
@@ -53,7 +55,11 @@ export const ObjectGroup = ({
               <>
                 <div className="flex flex-col border border-l-2 border-r-0 border-t-0 border-b-0 border-gray-400 pl-1">
                   {objects.map((object) => (
-                    <ObjectNavButton link={object.name} name={object.name} />
+                    <ObjectNavButton
+                      link={object.name}
+                      name={object.name}
+                      icon={object.ui_icon}
+                    />
                   ))}
                 </div>
                 <div className="flex justify-start w-full">
@@ -69,12 +75,12 @@ export const ObjectGroup = ({
               <div className="italic text-gray-400 dark:text-gray-600 ml-3 flex justify-between items-center">
                 <div>No data to show.</div>
                 <Button
-                  size="sm"
+                  size="icon"
                   variant="ghost"
                   className="text-gray-400 dark:text-gray-600"
                   onClick={createObject}
                 >
-                  Create
+                  <Plus />
                 </Button>
               </div>
             )}
@@ -85,13 +91,30 @@ export const ObjectGroup = ({
   );
 };
 
-const ObjectNavButton = ({ link, name }: { link: string; name: string }) => {
+const ObjectNavButton = ({
+  link,
+  name,
+  icon,
+}: {
+  link: string;
+  name: string;
+  icon?: string;
+}) => {
   return (
     <NavLink
       to={link}
-      className={`my-1 mx-1 text-sm py-1 px-2 rounded-md border border-transparent hover:border-gray-400 transition-all duration-100`}
+      className={({ isActive }) => `${
+        isActive && "bg-gray-100 dark:bg-gray-700 border-gray-200"
+      } flex items-center justify-start gap-x-2 my-1 mx-1 text-sm py-1 px-2 rounded-md border border-transparent hover:border-gray-400 transition-all duration-150
+  }`}
     >
-      {name}
+      {({ isActive }) => (
+        <>
+          <div className="text-sm">{icon}</div>
+          <Separator orientation="vertical" className="h-4" />
+          <div>{name}</div>
+        </>
+      )}
     </NavLink>
   );
 };

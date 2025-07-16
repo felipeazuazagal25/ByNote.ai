@@ -43,7 +43,19 @@ async def get_workspaces(db: AsyncSession, user: User):
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))
 
-
+async def get_workspace_by_slug(workspace_slug:str,db: AsyncSession, user: User):
+    try:
+        query = select(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_slug)
+        response = await db.execute(query)
+        db_workspace = response.scalar_one_or_none()
+        if not db_workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        # Add the topNProjects
+        db_workspace.topNProjects = [p for p in db_workspace.get_topNProjects(5)]
+        return db_workspace
+    except Exception as e:
+        raise HTTPException(status_code=500,detail=str(e))
+    
 
 async def update_workspace(workspace_id: uuid.UUID, workspace: WorkspaceUpdate, db: AsyncSession, user: User):
     try:

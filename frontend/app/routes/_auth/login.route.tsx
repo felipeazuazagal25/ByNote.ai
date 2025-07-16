@@ -100,7 +100,7 @@ const Login = () => {
           {actionData?.error && (
             <Alert variant="destructive" className="text-red-400 mt-4">
               <AlertTitle>
-                Email or/and password were incorrect. Please try again.
+                Email or/and password are incorrect. Please try again.
               </AlertTitle>
             </Alert>
           )}

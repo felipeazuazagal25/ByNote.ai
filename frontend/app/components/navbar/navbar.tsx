@@ -9,11 +9,13 @@ import AccountOptionsButtons from "./account-options";
 
 const Navbar = ({
   workspace,
+  workspaces,
   userInfo,
   showSidebar,
   setShowSidebar,
 }: {
   workspace: Workspace;
+  workspaces: Workspace[];
   userInfo: any;
   showSidebar: boolean;
   setShowSidebar: (showSidebar: boolean) => void;
@@ -31,7 +33,10 @@ const Navbar = ({
           >
             <MenuIcon className="w-4 h-4" />
           </Button>
-          <WorkspaceOptionsButton workspace={workspace} />
+          <WorkspaceOptionsButton
+            workspace={workspace}
+            workspaces={workspaces}
+          />
         </div>
         <AccountOptionsButtons userInfo={userInfo} />
         {/* <div className="">Workspace: {workspace.name}</div> */}

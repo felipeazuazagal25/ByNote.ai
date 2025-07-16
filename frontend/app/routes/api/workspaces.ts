@@ -14,6 +14,20 @@ export const getWorkspace = async (request: Request, workspaceId: string) => {
   return response.json();
 };
 
+export const getWorkspaceBySlug = async (
+  request: Request,
+  workspaceSlug: string
+) => {
+  const response = await authFetch(
+    request,
+    `/workspaces/slug/${workspaceSlug}`,
+    {
+      method: "GET",
+    }
+  );
+  return response.json();
+};
+
 export const createWorkspace = async ({
   request,
   name,

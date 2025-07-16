@@ -77,13 +77,13 @@ const AppSidebar = ({
                 categoryName={"Projects"}
                 objects={workspace.topNProjects}
                 icon={<FolderClosed className="w-5 h-5" />}
-                showAllLink={"/projects"}
+                showAllLink={`/${workspace.slug}/projects`}
               />
               <ObjectGroup
                 categoryName={"Notes"}
                 objects={workspace.topNNotes}
                 icon={<StickyNote className="w-5 h-5" />}
-                showAllLink={"/notes"}
+                showAllLink={`/${workspace.slug}/notes`}
               />
             </CardDescription>
           </CardContent>

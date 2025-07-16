@@ -2,7 +2,11 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { getCurrentUser } from "../api/auth";
 import { Card, CardHeader } from "~/components/ui/card";
-import { getWorkspace } from "../api/workspaces";
+import {
+  getWorkspaces,
+  getWorkspace,
+  getWorkspaceBySlug,
+} from "../api/workspaces";
 import { useEffect, useState } from "react";
 import AppSidebar from "~/components/sidebar/Sidebar";
 import Navbar from "~/components/navbar/navbar";
@@ -10,30 +14,43 @@ import Navbar from "~/components/navbar/navbar";
 const DEBUG = process.env.NODE_ENV === "development";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const url = new URL(request.url).pathname;
-  const workspaceId = params.workspaceSlug;
+  const workspaces = await getWorkspaces(request);
+  const { workspaceSlug, projectSlug } = params; // Get the strings of parameters
+  console.log("This is projectSlug", projectSlug);
+  const { pathname, searchParams } = new URL(request.url);
+
   const user = await getCurrentUser(request);
-  const { id, default_workspace_id, default_project_id, ...userInfo } = user;
+  const {
+    id,
+    default_workspace_id,
+    default_project_id,
+    is_active,
+    is_superuser,
+    is_verified,
+    ...userInfo
+  } = user;
   const defaultWorkspaceId = user.default_workspace_id;
+  console.log("this is the pathname", pathname);
 
   // Identify the page to load
-  if (url === "/") {
+  if (pathname === "/") {
     // Default behavior when user is logged in
     const workspace = await getWorkspace(request, defaultWorkspaceId);
     if (DEBUG) console.log("workspace", workspace);
     return new Response(
-      JSON.stringify({ loadDefaultApp: true, workspace, userInfo }),
+      JSON.stringify({ loadDefaultApp: true, workspace, workspaces, userInfo }),
       {
         headers: {
           "Content-Type": "application/json",
         },
       }
     );
-  } else if (workspaceId) {
-    const workspace = await getWorkspace(request, defaultWorkspaceId);
-    if (DEBUG) console.log("workspace", workspace);
+  } else if (workspaceSlug) {
+    const workspace = await getWorkspaceBySlug(request, workspaceSlug);
+    const loadDefaultApp = pathname === `/${workspace.slug}`; // Load default app of another workspace
+    if (DEBUG) console.log("projectSlug", projectSlug);
     return new Response(
-      JSON.stringify({ loadDefaultApp: true, workspace, userInfo }),
+      JSON.stringify({ loadDefaultApp, workspace, workspaces, userInfo }),
       {
         headers: {
           "Content-Type": "application/json",
@@ -53,12 +70,13 @@ const Layout = () => {
     console.log("this is loaderData", loaderData);
   }, []);
 
-  const { loadDefaultApp, workspace, userInfo } =
+  const { loadDefaultApp, workspace, workspaces, userInfo } =
     useLoaderData<typeof loader>();
   return (
     <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 flex flex-col">
       <Navbar
         workspace={workspace}
+        workspaces={workspaces}
         userInfo={userInfo}
         showSidebar={showSidebar}
         setShowSidebar={setShowSidebar}

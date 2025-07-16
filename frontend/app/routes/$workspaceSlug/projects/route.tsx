@@ -2,9 +2,13 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { getProjects } from "../../api/projects";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
+import { getWorkspace, getWorkspaceBySlug } from "~/routes/api/workspaces";
+import { Outlet } from "@remix-run/react";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const projects = await getProjects(request);
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const workspaceSlug = params.workspaceSlug || "personal"; // Default
+  const workspace = await getWorkspaceBySlug(request, workspaceSlug);
+  const projects = await getProjects(request, workspace.id);
   return { projects };
 };
 
@@ -14,7 +18,12 @@ const Projects = () => {
     console.log(loaderData);
   }, []);
 
-  return <div>This is a list of projects</div>;
+  return (
+    <div>
+      This is a list of projects
+      <Outlet />
+    </div>
+  );
 };
 
 export default Projects;
