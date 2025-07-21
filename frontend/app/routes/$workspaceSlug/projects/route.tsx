@@ -1,8 +1,8 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { getProjects } from "../../api/projects";
+import { getProjects } from "../../../api/projects";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
-import { getWorkspace, getWorkspaceBySlug } from "~/routes/api/workspaces";
+import { getWorkspace, getWorkspaceBySlug } from "~/api/workspaces";
 import { Outlet } from "@remix-run/react";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {

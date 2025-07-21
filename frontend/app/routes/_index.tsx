@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { getCurrentUser } from "./api/auth";
+import { getCurrentUser } from "../api/auth";
 import { UserInfo } from "~/types/userInfo";
-import { getWorkspace } from "./api/workspaces";
+import { getWorkspace } from "../api/workspaces";
 import { Workspace } from "~/types/workspaces";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

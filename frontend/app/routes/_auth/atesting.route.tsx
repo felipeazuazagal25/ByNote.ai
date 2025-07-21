@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button";
-import { requestUserVerification } from "../api/auth";
+import { requestUserVerification } from "../../api/auth";
 import { useState } from "react";
 import { Input } from "~/components/ui/input";
 import { Form } from "@remix-run/react";

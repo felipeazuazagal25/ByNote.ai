@@ -1,12 +1,12 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { getCurrentUser } from "../api/auth";
+import { getCurrentUser } from "../../api/auth";
 import { Card, CardHeader } from "~/components/ui/card";
 import {
   getWorkspaces,
   getWorkspace,
   getWorkspaceBySlug,
-} from "../api/workspaces";
+} from "../../api/workspaces";
 import { useEffect, useState } from "react";
 import AppSidebar from "~/components/sidebar/Sidebar";
 import Navbar from "~/components/navbar/navbar";
@@ -46,17 +46,23 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       }
     );
   } else if (workspaceSlug) {
-    const workspace = await getWorkspaceBySlug(request, workspaceSlug);
-    const loadDefaultApp = pathname === `/${workspace.slug}`; // Load default app of another workspace
-    if (DEBUG) console.log("projectSlug", projectSlug);
-    return new Response(
-      JSON.stringify({ loadDefaultApp, workspace, workspaces, userInfo }),
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    try {
+      const workspace = await getWorkspaceBySlug(request, workspaceSlug);
+      const loadDefaultApp = pathname === `/${workspace.slug}`; // Load default app of another workspace
+      if (DEBUG) console.log("projectSlug", projectSlug);
+      return new Response(
+        JSON.stringify({ loadDefaultApp, workspace, workspaces, userInfo }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      const workspace = await getWorkspace(request, defaultWorkspaceId);
+      return redirect(`/${workspace.slug}`);
+    }
   } else {
     return { loadDefaultApp: false, workspace: null, userInfo };
   }

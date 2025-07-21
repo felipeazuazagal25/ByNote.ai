@@ -10,7 +10,7 @@ import { Button, buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Form, Link, useActionData, useNavigate } from "@remix-run/react";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { accessTokenCookie, getCurrentUser, login } from "~/routes/api/auth";
+import { accessTokenCookie, getCurrentUser, login } from "~/api/auth";
 import { useEffect } from "react";
 import { Label } from "~/components/ui/label";
 import { motion } from "framer-motion";

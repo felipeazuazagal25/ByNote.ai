@@ -35,6 +35,6 @@ async def update_workspace_route(workspace_id: uuid.UUID, workspace: WorkspaceUp
     return await update_workspace(workspace_id, workspace, db, user)
 
 
-@router.delete("/{workspace_id}", response_model=WorkspaceOut)
+@router.delete("/{workspace_id}")
 async def delete_workspace_route(workspace_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     return await delete_workspace(workspace_id, db, user)

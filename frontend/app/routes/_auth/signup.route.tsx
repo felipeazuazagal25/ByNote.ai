@@ -16,7 +16,7 @@ import {
   createUser,
   login,
   requestUserVerification,
-} from "../api/auth";
+} from "../../api/auth";
 import { useEffect, useState } from "react";
 import { AuthNav } from "./_layout";
 import { motion } from "framer-motion";

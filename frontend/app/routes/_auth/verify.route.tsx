@@ -3,7 +3,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getCurrentUser, requestUserVerification } from "../api/auth";
+import { getCurrentUser, requestUserVerification } from "../../api/auth";
 import { Form } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 

@@ -7,13 +7,31 @@ from fastapi import HTTPException
 import uuid
 from sqlalchemy import select
 from datetime import datetime
+from app.models import Project
 
 async def create_workspace(workspace: WorkspaceCreate, db: AsyncSession, user: User):
     try:
         db_workspace = Workspace(**workspace.model_dump(), user_id=user.id)
         db.add(db_workspace)
-        await db.commit()
+        await db.flush()  # This will generate the workspace ID
         await db.refresh(db_workspace)
+        # Create the default project
+        db_project = Project(name="Inbox", 
+                         description="Inbox", 
+                         is_archived=False, 
+                         is_shared=False, 
+                         is_deleted=False,
+                         ui_color="#000000",
+                         ui_icon="🔍", 
+                         ui_theme="light", 
+                         ui_font="sans-serif", 
+                         workspace_id=db_workspace.id)
+        db.add(db_project)
+        await db.flush()  # This will generate the workspace ID
+        await db.refresh(db_project)
+        
+        await db.commit()
+
         return db_workspace
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -21,7 +39,7 @@ async def create_workspace(workspace: WorkspaceCreate, db: AsyncSession, user: U
 
 async def get_workspace(workspace_id: uuid.UUID, db: AsyncSession, user: User):
     try:
-        query = select(Workspace).where(Workspace.id == workspace_id, Workspace.user_id == user.id)
+        query = select(Workspace).where(Workspace.id == workspace_id, Workspace.user_id == user.id, Workspace.is_deleted == False)
         response = await db.execute(query)
         db_workspace = response.scalar_one_or_none()
         if not db_workspace:
@@ -36,7 +54,7 @@ async def get_workspace(workspace_id: uuid.UUID, db: AsyncSession, user: User):
 
 async def get_workspaces(db: AsyncSession, user: User):
     try:
-        query = select(Workspace).where(Workspace.user_id == user.id)
+        query = select(Workspace).where(Workspace.user_id == user.id,Workspace.is_deleted == False)
         response = await db.execute(query)
         workspaces = response.scalars().all()
         return workspaces
@@ -45,7 +63,7 @@ async def get_workspaces(db: AsyncSession, user: User):
 
 async def get_workspace_by_slug(workspace_slug:str,db: AsyncSession, user: User):
     try:
-        query = select(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_slug)
+        query = select(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_slug, Workspace.is_deleted == False)
         response = await db.execute(query)
         db_workspace = response.scalar_one_or_none()
         if not db_workspace:

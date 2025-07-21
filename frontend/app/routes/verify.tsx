@@ -3,7 +3,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getCurrentUser, requestUserVerification } from "./api/auth";
+import { getCurrentUser, requestUserVerification } from "../api/auth";
 import GridBackground from "~/components/ui/grid-background";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button, buttonVariants } from "~/components/ui/button";

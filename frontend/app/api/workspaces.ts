@@ -25,6 +25,11 @@ export const getWorkspaceBySlug = async (
       method: "GET",
     }
   );
+
+  if (!response.ok) {
+    throw new Error("No workspace with the requested slug.");
+  }
+
   return response.json();
 };
 
@@ -39,5 +44,18 @@ export const createWorkspace = async ({
     method: "POST",
     body: { name },
   });
+  return response.json();
+};
+
+export const deleteWorkspace = async (
+  request: Request,
+  workspaceId: string
+) => {
+  const response = await authFetch(request, `/workspaces/${workspaceId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(`Error deleting workspace with id ${workspaceId}`);
+  }
   return response.json();
 };

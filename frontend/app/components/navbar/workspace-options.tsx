@@ -32,7 +32,7 @@ import {
   Archive,
 } from "lucide-react";
 import { Workspace } from "~/types/workspaces";
-import { Link, NavLink } from "@remix-run/react";
+import { redirect, Link, NavLink, useNavigate } from "@remix-run/react";
 
 const WorkspaceOptionsButton = ({
   workspace,
@@ -142,6 +142,10 @@ const DeleteWorkspaceTrigger = ({ workspace }: { workspace: Workspace }) => {
 };
 
 const DeleteWorkspaceDialog = ({ workspace }: { workspace: Workspace }) => {
+  const navigate = useNavigate();
+  const handleDelete = () => {
+    return navigate(`/api/workspaces/delete/${workspace.id}`);
+  };
   return (
     <DialogContent>
       <DialogHeader>
@@ -152,13 +156,16 @@ const DeleteWorkspaceDialog = ({ workspace }: { workspace: Workspace }) => {
         workspace and remove your data from our servers.
       </div>
       <DialogFooter className="flex justify-end items-center">
-        <div className="text-sm italic text-gray-500">
-          You cannot delete your personal workspace.
-        </div>
+        {workspace.slug === "personal" && (
+          <div className="text-sm italic text-gray-500">
+            You cannot delete your personal workspace.
+          </div>
+        )}
         <Button
           type="submit"
           variant="destructive"
           disabled={workspace.slug === "personal"}
+          onClick={handleDelete}
         >
           Delete
           <Trash2 />
