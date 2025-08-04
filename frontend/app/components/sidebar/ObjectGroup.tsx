@@ -104,7 +104,7 @@ const ObjectNavButton = ({
     <NavLink
       to={link}
       className={({ isActive }) => `${
-        isActive && "bg-gray-100 dark:bg-gray-700 border-gray-200"
+        isActive && "bg-gray-100 dark:bg-gray-900 border-gray-200"
       } flex items-center justify-start gap-x-2 my-1 mx-1 text-sm py-1 px-2 rounded-md border border-transparent hover:border-gray-400 transition-all duration-150
   }`}
     >

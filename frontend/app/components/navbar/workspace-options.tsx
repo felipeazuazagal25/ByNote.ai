@@ -32,7 +32,12 @@ import {
   Archive,
 } from "lucide-react";
 import { Workspace } from "~/types/workspaces";
-import { redirect, Link, NavLink, useNavigate } from "@remix-run/react";
+import { Link, NavLink, useNavigate, Form, useFetcher } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { useNavigation } from "@remix-run/react";
+import { ActionFunction, redirect } from "@remix-run/node";
 
 const WorkspaceOptionsButton = ({
   workspace,
@@ -41,11 +46,21 @@ const WorkspaceOptionsButton = ({
   workspace: Workspace;
   workspaces: Workspace[];
 }) => {
+  const [dropdownMenuOpen, setDropdownMenuOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   return (
-    <Dialog>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="lg" className="px-2">
+    <>
+      <DropdownMenu open={dropdownMenuOpen} onOpenChange={setDropdownMenuOpen}>
+        <DropdownMenuTrigger>
+          <Button
+            variant="outline"
+            size="lg"
+            className="px-2"
+            onClick={() => {
+              setDropdownMenuOpen(!dropdownMenuOpen);
+            }}
+          >
             <div className="flex justify-between items-center w-full gap-x-2">
               <div>{workspace.name}</div>{" "}
               <div className="ml-2">
@@ -60,7 +75,10 @@ const WorkspaceOptionsButton = ({
         >
           <DropdownMenuLabel>Workspace</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <SwitchWorkspaceButton workspaces={workspaces} />
+            <SwitchWorkspaceButton
+              workspaces={workspaces}
+              onCloseDropdownMenu={() => setDropdownMenuOpen(false)}
+            />
             <DropdownMenuItem>
               <Pen />
               Edit Workspace
@@ -71,12 +89,27 @@ const WorkspaceOptionsButton = ({
             <Archive />
             Archive
           </DropdownMenuItem>
-          <DeleteWorkspaceTrigger workspace={workspace} />
+
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setDeleteDialogOpen(true);
+            }}
+            className="text-red-600 dark:text-red-400 "
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
+          </DropdownMenuItem>
 
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                setCreateDialogOpen(true);
+              }}
+            >
               <SquarePlus />
               Create Workspace
             </DropdownMenuItem>
@@ -89,14 +122,32 @@ const WorkspaceOptionsButton = ({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <DeleteWorkspaceDialog workspace={workspace} />
-    </Dialog>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DeleteWorkspaceDialog
+          workspace={workspace}
+          onCloseDialog={() => setDeleteDialogOpen(false)}
+          onCloseDropdownMenu={() => setDropdownMenuOpen(false)}
+        />
+      </Dialog>
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <CreateWorkspaceDialog
+          onCloseDialog={() => setCreateDialogOpen(false)}
+          onCloseDropdownMenu={() => setDropdownMenuOpen(false)}
+        />
+      </Dialog>
+    </>
   );
 };
 
 export default WorkspaceOptionsButton;
 
-const SwitchWorkspaceButton = ({ workspaces }: { workspaces: Workspace[] }) => {
+const SwitchWorkspaceButton = ({
+  workspaces,
+  onCloseDropdownMenu,
+}: {
+  workspaces: Workspace[];
+  onCloseDropdownMenu: () => void;
+}) => {
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>Switch Workspace</DropdownMenuSubTrigger>
@@ -104,9 +155,13 @@ const SwitchWorkspaceButton = ({ workspaces }: { workspaces: Workspace[] }) => {
         <DropdownMenuSubContent>
           {workspaces
             ? workspaces?.map((ws: Workspace) => (
-                <DropdownMenuItem key={ws.id}>
-                  <NavLink to={`/${ws.slug}`} className={"w-full"}>
-                    {({ isActive }) => (
+                <NavLink
+                  to={`/${ws.slug}`}
+                  className={"w-full"}
+                  onClick={onCloseDropdownMenu}
+                >
+                  {({ isActive }) => (
+                    <DropdownMenuItem key={ws.id}>
                       <div className="w-full flex items-center justify-between">
                         <div className={`${isActive ? "font-bold" : ""}`}>
                           {ws.name}
@@ -115,9 +170,9 @@ const SwitchWorkspaceButton = ({ workspaces }: { workspaces: Workspace[] }) => {
                           className={`w-4 h-4 ${isActive ? "block" : "hidden"}`}
                         />
                       </div>
-                    )}
-                  </NavLink>
-                </DropdownMenuItem>
+                    </DropdownMenuItem>
+                  )}
+                </NavLink>
               ))
             : ""}
           <DropdownMenuSeparator />
@@ -130,21 +185,23 @@ const SwitchWorkspaceButton = ({ workspaces }: { workspaces: Workspace[] }) => {
   );
 };
 
-const DeleteWorkspaceTrigger = ({ workspace }: { workspace: Workspace }) => {
-  return (
-    <DialogTrigger className="text-red-600 dark:text-red-400 flex text-sm gap-x-2 items-center w-full">
-      <DropdownMenuItem className="w-full">
-        <Trash2 className="w-4 h-4" />
-        Delete
-      </DropdownMenuItem>
-    </DialogTrigger>
-  );
-};
-
-const DeleteWorkspaceDialog = ({ workspace }: { workspace: Workspace }) => {
-  const navigate = useNavigate();
+const DeleteWorkspaceDialog = ({
+  workspace,
+  onCloseDialog,
+  onCloseDropdownMenu,
+}: {
+  workspace: Workspace;
+  onCloseDialog: () => void;
+  onCloseDropdownMenu: () => void;
+}) => {
+  const fetcher = useFetcher();
   const handleDelete = () => {
-    return navigate(`/api/workspaces/delete/${workspace.id}`);
+    onCloseDialog();
+    onCloseDropdownMenu();
+    return fetcher.submit(null, {
+      method: "delete",
+      action: `/api/workspaces/delete/${workspace.id}`,
+    });
   };
   return (
     <DialogContent>
@@ -171,6 +228,71 @@ const DeleteWorkspaceDialog = ({ workspace }: { workspace: Workspace }) => {
           <Trash2 />
         </Button>
       </DialogFooter>
+    </DialogContent>
+  );
+};
+
+const CreateWorkspaceDialog = ({
+  onCloseDialog,
+  onCloseDropdownMenu,
+}: {
+  onCloseDialog: () => void;
+  onCloseDropdownMenu: () => void;
+}) => {
+  const navigate = useNavigate();
+  const createWorkspaceFetcher = useFetcher();
+  const isSubmitting = createWorkspaceFetcher.state === "submitting";
+  const fetcherData = createWorkspaceFetcher.data as
+    | { error?: string; success?: boolean; slug?: string }
+    | undefined;
+
+  useEffect(() => {
+    if (fetcherData?.success) {
+      onCloseDialog();
+      onCloseDropdownMenu();
+      navigate(`/${fetcherData.slug}`);
+    }
+  }, [fetcherData]);
+
+  return (
+    <DialogContent>
+      <createWorkspaceFetcher.Form
+        method="post"
+        action="/api/workspaces/create"
+      >
+        <DialogHeader>
+          <DialogTitle>Create a new workspace</DialogTitle>
+        </DialogHeader>
+        <div className="text-sm text-gray-500">Fill out the information.</div>
+        <DialogDescription className="flex flex-col gap-y-2 my-4">
+          <div>
+            <Label>Name</Label>
+            <Input
+              type="text"
+              placeholder=""
+              name="name"
+              className=""
+              autoComplete="off"
+            />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input
+              type="text"
+              placeholder=""
+              name="description"
+              className=""
+              autoComplete="off"
+            />
+          </div>
+          {fetcherData?.error && (
+            <div className="text-sm text-red-500">{fetcherData.error}</div>
+          )}
+        </DialogDescription>
+        <DialogFooter className="flex justify-end items-center">
+          <Button>{isSubmitting ? "Creating..." : "Create"}</Button>
+        </DialogFooter>
+      </createWorkspaceFetcher.Form>
     </DialogContent>
   );
 };

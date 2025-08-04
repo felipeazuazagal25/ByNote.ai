@@ -14,6 +14,7 @@ const Project = () => {
   return (
     <div>
       <h1>Project {projectSlug}</h1>
+      This is some description
     </div>
   );
 };
