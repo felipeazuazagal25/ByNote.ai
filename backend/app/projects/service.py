@@ -8,8 +8,8 @@ from app.models import User
 from sqlalchemy import select
 import uuid
 
-async def create_project(project: ProjectCreate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
-    db_project = Project(**project.model_dump(), user_id=user.id)
+async def create_project(project: ProjectCreate, workspace_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    db_project = Project(**project.model_dump(), workspace_id=workspace_id)
     db.add(db_project)
     await db.commit()
     await db.refresh(db_project)
@@ -22,12 +22,19 @@ async def get_projects(workspace_id: str,db: AsyncSession, user: User):
     return projects
 
 async def get_project(project_id: uuid.UUID ,db: AsyncSession, user: User):
-    response = await db.execute(select(Project).where(Project.id == project_id, Project.user_id == user.id))
+    response = await db.execute(select(Project).where(Project.id == project_id))
     project = response.scalar_one_or_none()
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
 
+async def get_project_by_slug(project_slug: str,workspace_id:uuid.UUID, db: AsyncSession, user: User):
+    query = select(Project).where(Project.workspace_id == workspace_id, Project.slug == project_slug)
+    response = await db.execute(query)
+    project = response.scalar_one_or_none()
+    if project is None:
+        raise HTTPException(status_code=404,detail="Project not found")
+    return project
 
 async def update_project(project_id: uuid.UUID, project: ProjectUpdate, db: AsyncSession, user: User):
     response = await db.execute(select(Project).where(Project.id == project_id, Project.user_id == user.id))

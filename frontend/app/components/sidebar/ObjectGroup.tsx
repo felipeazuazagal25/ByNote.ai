@@ -56,7 +56,7 @@ export const ObjectGroup = ({
                 <div className="flex flex-col border border-l-2 border-r-0 border-t-0 border-b-0 border-gray-400 pl-1">
                   {objects.map((object) => (
                     <ObjectNavButton
-                      link={object.name}
+                      link={object.slug}
                       name={object.name}
                       icon={object.ui_icon}
                     />

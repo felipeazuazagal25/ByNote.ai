@@ -68,8 +68,8 @@ class Note(Base):
     project: Mapped["Project"] = relationship(back_populates="notes")
 
     # Relationship to the NoteTag table
-    notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="note",cascade="all, delete-orphan")
-    tags: Mapped[List["Tag"]] = relationship(secondary="note_tags", back_populates="notes", viewonly=True)
+    notes_tags: Mapped[List["NoteTag"]] = relationship(back_populates="note", lazy="selectin",cascade="all, delete-orphan")
+    tags: Mapped[List["Tag"]] = relationship(secondary="note_tags", lazy="selectin",back_populates="notes", viewonly=True)
 
     # Relationship to the NoteVersions table
     note_versions: Mapped[List["NoteVersions"]] = relationship(back_populates="note",cascade="all, delete-orphan")
@@ -95,7 +95,7 @@ class Note(Base):
         return "note"
 
     def __repr__(self) -> str:
-        return f"Note(id={self.id}, title={self.title}, content={self.content})"
+        return f"Note(id={self.id}, title={self.title}, content={self.text_content})"
     
 
 

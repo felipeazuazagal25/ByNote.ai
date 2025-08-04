@@ -29,6 +29,7 @@ class ProjectUpdate(ProjectBase):
 
 class ProjectOut(ProjectBase):
     id: uuid.UUID
+    slug:str
     created_at: datetime
     updated_at: datetime
     projects_tags: Optional[List["ProjectTagOut"]] = []

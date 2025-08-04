@@ -33,6 +33,7 @@ async def create_note(note: NoteCreate, project_id: uuid.UUID | None = None, db:
     db.add(db_note)
     await db.commit()
     await db.refresh(db_note)
+    print(db_note)
     
     try:
         await embedding_service.create_embedding(db, db_note, user)
