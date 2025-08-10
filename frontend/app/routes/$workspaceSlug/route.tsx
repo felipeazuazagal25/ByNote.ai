@@ -112,7 +112,7 @@ const DefaultApp = () => {
 
 const Footer = () => {
   return (
-    <div className="w-full py-2 px-5 z-10">
+    <div className="py-2 px-5 z-10">
       <Card className="h-20 w-full">
         <CardHeader>This is the footer</CardHeader>
       </Card>

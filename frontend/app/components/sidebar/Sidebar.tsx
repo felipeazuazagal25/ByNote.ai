@@ -14,7 +14,7 @@ import { FolderClosed, StickyNote } from "lucide-react";
 import { buttonVariants } from "../ui/button";
 
 const AppSidebar = ({
-  open,
+  open = true,
   setOpen,
   workspace,
 }: {
@@ -24,11 +24,13 @@ const AppSidebar = ({
 }) => {
   return (
     <motion.div
-      className="flex flex-col px-5 z-10"
+      initial={false}
+      className="flex flex-col pl-5 pr-[10px] z-10 "
       animate={{
         width: open ? "30%" : "0px",
         minWidth: open ? "16rem" : "0px",
         maxWidth: open ? "20rem" : "0px",
+        paddingRight: open ? "10px" : "0px",
       }}
       transition={{
         duration: open ? 0.1 : 0.2,
@@ -68,7 +70,7 @@ const AppSidebar = ({
               </ButtonWithShortcut>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 ">
+          <CardContent className="flex-1">
             <CardDescription>
               <div className="text-xs text-gray-500 font-serif">
                 Your Content

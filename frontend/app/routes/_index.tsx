@@ -17,8 +17,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 };
 
-const Temp = () => {
-  return <div>temp</div>;
+const Redirect = () => {
+  return <div>redirecting...</div>;
 };
 
-export default Temp;
+export default Redirect;

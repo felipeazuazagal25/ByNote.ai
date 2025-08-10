@@ -1,4 +1,5 @@
 export type Note = {
+  id: string;
   title: string;
   text_content: string;
   rich_content: JSON;

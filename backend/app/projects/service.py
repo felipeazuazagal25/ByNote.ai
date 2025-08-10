@@ -22,7 +22,8 @@ async def get_projects(workspace_id: str,db: AsyncSession, user: User):
     return projects
 
 async def get_project(project_id: uuid.UUID ,db: AsyncSession, user: User):
-    response = await db.execute(select(Project).where(Project.id == project_id))
+    query=select(Project).where(Project.id == project_id)
+    response = await db.execute(query)
     project = response.scalar_one_or_none()
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
