@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
+// import { dataContext } from "~/context/dataContext.server";
 
 import "./tailwind.css";
 import { useState, useEffect } from "react";
@@ -79,6 +80,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+
+// export const context = dataContext;
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useUIState("showSidebar", true);

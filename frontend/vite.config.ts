@@ -29,6 +29,7 @@ export default defineConfig({
           nestedDirectoryChar: "-",
         });
       },
+
       ignoredRouteFiles: ["**/*.test.ts", "**/*.spec.ts"],
     }),
     tsconfigPaths(),

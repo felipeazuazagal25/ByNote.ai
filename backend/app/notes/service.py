@@ -12,10 +12,13 @@ from app.auth.service import current_active_user
 from app.models.auth import User
 import uuid
 from app.models.project import Project
+from app.models.workspace import Workspace
+from app.models.auth import User
 from app.embeddings.service import EmbeddingService
 from app.embeddings.providers import BertEmbeddingProvider
 
 from app.models import Embedding
+
 
 
 logger = logging.getLogger('bynote')
@@ -53,8 +56,18 @@ async def get_notes(db: AsyncSession = Depends(get_db), user: User = Depends(cur
     notes = result.scalars().all()
     return notes
 
-async def get_note(note_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
-    result = await db.execute(select(Note).filter(Note.id == note_id))
+async def get_note(note_id: uuid.UUID, project_slug:uuid.UUID, workspace_slug:str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
+    if project_slug is None or workspace_slug is None:
+        HTTPException(status_code=500, detail='workspace_slug and workspace_slug must be provided')
+    query = (select(Note)
+             .join(Project, Project.id == Note.project_id)
+             .join(Workspace, Workspace.id == Project.workspace_id)
+             .join(User, User.id == Workspace.user_id)
+             .filter(Note.id == note_id, 
+                     Project.slug == project_slug, 
+                     Workspace.slug == workspace_slug,
+                     User.id == user.id))
+    result = await db.execute(query)
     note = result.scalar_one_or_none()
     if not note:
         raise HTTPException(status_code=404, detail="Note not found")
@@ -68,6 +81,16 @@ async def get_note_embeddings(note_id: uuid.UUID, db: AsyncSession = Depends(get
         raise HTTPException(status_code=404, detail="Note not found")
     embeddings = await note.embeddings(db)
     return embeddings
+
+async def get_note_by_slug(slug:str,project_id:uuid.UUID,db: AsyncSession, user: User):
+    if project_id == "":
+        raise HTTPException(status_code=404, detail="project_id must be provided")
+    query = select(Note).where(Note.project_id == project_id, Note.slug == slug)
+    result = await db.execute(query)
+    note = result.scalar_one_or_none()
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return note
 
 
 async def update_note(note_id: uuid.UUID, note: NoteUpdate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:

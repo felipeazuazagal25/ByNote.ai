@@ -5,7 +5,7 @@ from app.models.notes import Note
 from app.dependencies import get_db
 from app.notes.schemas import NoteCreate, NoteUpdate, NoteOut
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.notes.service import create_note, get_notes, update_note, delete_note, get_note_embeddings
+from app.notes.service import create_note, get_notes,get_note,get_note_by_slug, update_note, delete_note, get_note_embeddings
 from app.auth.service import current_active_user
 from app.models.auth import User
 import uuid
@@ -51,6 +51,15 @@ async def get_notes_route(project_id: uuid.UUID | None = None, db: AsyncSession 
     notes = await get_notes(db, user, project_id)
     return notes
 
+@router.get('/{note_id}', response_model=NoteOut)
+async def get_note_route(note_id:uuid.UUID, project_slug:str, workspace_slug:str, db:AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    note = await get_note(note_id, project_slug, workspace_slug, db, user)
+    return note
+
+@router.get("/slug/{note_slug}")
+async def get_note_by_slug_route(note_slug:str,project_id:str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    note = await get_note_by_slug(note_slug,project_id,db,user)
+    return note
 
 @router.get("/{note_id}/embeddings", response_model=List[EmbeddingOut])
 async def get_notes_embeddings_route(note_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
