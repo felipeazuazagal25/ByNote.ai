@@ -3,6 +3,7 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import { getProjectBySlug } from "~/api/projects";
 import { getWorkspaceBySlug } from "~/api/workspaces";
 import { Card } from "~/components/ui/card";
+import { useParams } from "@remix-run/react";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaceSlug = params.workspaceSlug as string;
@@ -14,10 +15,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function ProjectLayout() {
   const { project }: any = useLoaderData();
+  const params = useParams();
 
   return (
     <Card className="w-full mr-5">
-      {/* Left side: List of notes or whatever is nested */}
       <Outlet context={{ project }} />
     </Card>
   );

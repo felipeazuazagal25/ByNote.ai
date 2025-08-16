@@ -5,6 +5,9 @@ import { delay, motion } from "framer-motion";
 import { Note } from "~/types/notes";
 import { Separator } from "~/components/ui/separator";
 import { useEffect, useState } from "react";
+import { useOutletContext } from "@remix-run/react";
+import type { Project } from "~/types/projects";
+import { Button } from "~/components/ui/button";
 
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -20,6 +23,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function NoteEditor() {
   const { note, projectSlug, workspaceSlug } = useLoaderData<typeof loader>();
+  // const { project } = useOutletContext<{ project: Project }>();
   const [content, setContent] = useState(note.rich_content);
 
   const navigate = useNavigate();
@@ -56,17 +60,21 @@ export default function NoteEditor() {
         transition={{ layout: { duration: 0.15, ease: "easeOut" } }}
         className="flex justify-between items-center mb-4 font-semibold"
       >
-        <motion.span initial={false} layout="position" className="inline-block">
+        <motion.span
+          initial={false}
+          layout="position"
+          className="inline-block"
+          transition={{ layout: { duration: 0.15, ease: "easeOut" } }}
+        >
           {note.title}
         </motion.span>
 
-        <motion.button
-          layout
+        <Button
           onClick={() => navigate(`/${workspaceSlug}/${projectSlug}`)}
-          className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          className="px-3 py-1"
         >
           Close
-        </motion.button>
+        </Button>
       </motion.div>
 
       <Separator />
