@@ -12,6 +12,7 @@ const ButtonWithShortcut = ({
   variant,
   children,
   onClick,
+  submiting,
 }: {
   shortcuts: Shorcut[] | undefined;
   OS: string;
@@ -19,6 +20,7 @@ const ButtonWithShortcut = ({
   variant?: "default" | "outline" | "ghost" | "link" | "destructive";
   children: React.ReactNode;
   onClick: () => void;
+  submiting: boolean;
 }) => {
   return (
     <Button
@@ -26,6 +28,7 @@ const ButtonWithShortcut = ({
       size="default"
       variant={variant}
       onClick={onClick}
+      disabled={submiting}
     >
       <div>{children}</div>{" "}
       <div className="absolute rounded-full px-2 py-1 text-right right-1 text-gray-400 font-sans">

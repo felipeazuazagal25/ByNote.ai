@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 import {
   Card,
   CardContent,
@@ -12,6 +12,7 @@ import ButtonWithShortcut from "~/components/ui/button-shortchut";
 import { CreateNoteShortcuts, CreateProjectShortcuts } from "~/utils/shortcuts";
 import { FolderClosed, StickyNote } from "lucide-react";
 import { buttonVariants } from "../ui/button";
+import { useEffect } from "react";
 
 const AppSidebar = ({
   open = true,
@@ -22,6 +23,27 @@ const AppSidebar = ({
   setOpen: (open: boolean) => void;
   workspace: any;
 }) => {
+  const noteFetcher = useFetcher();
+  const noteFetcherData = noteFetcher.data;
+  const noteIsSubmitting = noteFetcher.state === "submitting";
+  const handleCreateNote = () => {
+    console.log("creating the note...");
+    const formData = {
+      title: "New Note",
+      text_content: "",
+      rich_content: JSON.stringify({}),
+      workspaceSlug: workspace.slug,
+    };
+    noteFetcher.submit(formData, {
+      method: "post",
+      action: `/api/notes/create`,
+    });
+  };
+
+  useEffect(() => {
+    console.log("this is fetcher data", noteFetcherData);
+  }, [noteFetcherData]);
+
   return (
     <motion.div
       initial={false}
@@ -52,12 +74,12 @@ const AppSidebar = ({
                 shortcuts={CreateNoteShortcuts}
                 OS="macOS"
                 variant="default"
-                onClick={() => {
-                  console.log("Creating New Note...");
-                }}
+                onClick={handleCreateNote}
+                submiting={noteIsSubmitting}
               >
-                New Note
+                {noteIsSubmitting ? "Creating..." : "New Note"}
               </ButtonWithShortcut>
+
               <ButtonWithShortcut
                 shortcuts={CreateProjectShortcuts}
                 OS="macOS"
@@ -65,6 +87,7 @@ const AppSidebar = ({
                 onClick={() => {
                   console.log("Creating New Project...");
                 }}
+                submiting={false}
               >
                 New Project
               </ButtonWithShortcut>

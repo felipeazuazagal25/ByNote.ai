@@ -16,6 +16,7 @@ from app.models.workspace import Workspace
 from app.models.auth import User
 from app.embeddings.service import EmbeddingService
 from app.embeddings.providers import BertEmbeddingProvider
+from app.workspaces.service import get_workspace_by_slug
 
 from app.models import Embedding
 
@@ -23,12 +24,11 @@ from app.models import Embedding
 
 logger = logging.getLogger('bynote')
 
-async def create_note(note: NoteCreate, project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
-    if project_id is None:
-        default_project_id = user.default_project_id
-        db_note = Note(**note.model_dump(), project_id=default_project_id)
-    else:
-        db_note = Note(**note.model_dump(), project_id=project_id)
+async def create_note(note: NoteCreate, workspace_slug: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
+    db_workspace = await get_workspace_by_slug(workspace_slug, db, user)
+    project_result = await db.execute(select(Project).where(Project.workspace_id == db_workspace.id, Project.slug == "inbox"))
+    db_project = project_result.scalar_one_or_none()
+    db_note = Note(**note.model_dump(), project_id=db_project.id)
     
     # Create embedding for the note
     embedding_service = EmbeddingService(provider=BertEmbeddingProvider())

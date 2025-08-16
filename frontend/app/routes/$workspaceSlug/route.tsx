@@ -79,7 +79,7 @@ const Layout = () => {
   const { loadDefaultApp, workspace, workspaces, userInfo } =
     useLoaderData<typeof loader>();
   return (
-    <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 flex flex-col h-screen">
       <Navbar
         workspace={workspace}
         workspaces={workspaces}
@@ -87,7 +87,7 @@ const Layout = () => {
         showSidebar={showSidebar}
         setShowSidebar={setShowSidebar}
       />
-      <div className="w-full flex-1 flex ">
+      <div className="w-full flex-1 flex h-full">
         <AppSidebar
           open={showSidebar}
           setOpen={setShowSidebar}

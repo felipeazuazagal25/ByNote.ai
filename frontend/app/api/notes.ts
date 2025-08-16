@@ -19,3 +19,25 @@ export const getNote = async (
 
   return response.json();
 };
+
+export const createNote = async (
+  request: Request,
+  workspaceSlug: string,
+  title: string,
+  text_content: string,
+  rich_content: JSON
+) => {
+  const response = await authFetch(request, `/notes/${workspaceSlug}`, {
+    method: "POST",
+    body: JSON.stringify({
+      title,
+      text_content,
+      rich_content: {},
+      is_archived: false,
+      is_shared: false,
+      is_starred: false,
+      is_pinned: false,
+    }),
+  });
+  return response.json();
+};

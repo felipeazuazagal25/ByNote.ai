@@ -16,8 +16,8 @@ from app.embeddings.schemas import EmbeddingOut
 router = APIRouter(prefix='/notes', tags=['notes'], dependencies=[Depends(current_active_user)])
 
 
-@router.post("/", response_model=NoteOut)
-async def create_note_route(note: NoteCreate ,project_id: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+@router.post("/{workspace_slug}", response_model=NoteOut)
+async def create_note_route(workspace_slug:str,note: NoteCreate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     """
     Create a new note.
 
@@ -30,7 +30,7 @@ async def create_note_route(note: NoteCreate ,project_id: uuid.UUID | None = Non
     Returns:
     - The created note with all its details
     """
-    db_note = await create_note(note, project_id, db, user)
+    db_note = await create_note(note, workspace_slug, db, user)
     return db_note
 
 

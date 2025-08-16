@@ -1,35 +1,61 @@
 import { Link, useOutletContext } from "@remix-run/react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
-import type { Note } from "~/types/notes";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Project } from "~/types/projects";
+import { Separator } from "~/components/ui/separator";
 
 export default function ProjectNotesList() {
-  const { project } = useOutletContext<{ project: { notes: Note[] } }>();
+  const { project } = useOutletContext<{ project: Project }>();
 
   return (
-    <div className="grid gap-2 w-full mr-5 outline">
-      {project.notes.map((note) => (
-        <Link key={note.id} to={`${note.id}`}>
-          <motion.div
-            layoutId={`note-${note.id}`}
-            transition={{ layout: { duration: 0.35, ease: [0.4, 0, 0.2, 1] } }}
-            className="p-4 rounded-xl border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/40 shadow-sm"
-          >
-            <motion.div
-              layout="position"
-              className="font-semibold text-gray-800 dark:text-gray-100"
+    <motion.div layout transition={{ duration: 0.15, ease: "easeOut" }}>
+      <CardHeader>
+        <CardTitle className="text-xl font-serif">{project.name}</CardTitle>
+        <Separator />
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-2 w-full mr-5">
+          {project.notes.map((note) => (
+            <Link
+              key={note.id}
+              to={`${note.id}`}
+              state={{ fromNoteList: true }}
             >
-              {note.title}
-            </motion.div>
-            <motion.div
-              layout="position"
-              className="text-sm text-gray-500 dark:text-gray-400 truncate"
-            >
-              {note.text_content}
-            </motion.div>
-          </motion.div>
-        </Link>
-      ))}
-    </div>
+              <motion.div
+                layoutId={`note-${note.id}`}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="p-4 rounded-xl border shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900"
+              >
+                {/* Shared bounding box for the title */}
+                <motion.div
+                  // layout="position"
+                  layoutId={`note-title-${note.id}`}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="font-semibold text-gray-800 dark:text-gray-100 "
+                >
+                  {/* Static font size here, no animation */}
+                  <span style={{ fontSize: "1rem", display: "inline-block" }}>
+                    {note.title}
+                  </span>
+                </motion.div>
+
+                {/* Extra content */}
+                <div>
+                  <motion.div
+                    layout="position"
+                    className="text-sm text-gray-500 dark:text-gray-400 truncate"
+                    initial={{ opacity: 0, y: 0 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                  >
+                    {note.text_content}
+                  </motion.div>
+                </div>
+              </motion.div>
+            </Link>
+          ))}
+        </div>
+      </CardContent>
+    </motion.div>
   );
 }

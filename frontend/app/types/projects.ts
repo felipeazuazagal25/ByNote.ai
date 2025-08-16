@@ -1,3 +1,5 @@
+import { Note } from "./notes";
+
 export type Project = {
   id: string;
   name: string;
@@ -11,5 +13,6 @@ export type Project = {
   created_at: Date;
   updated_at: Date;
   projects_tags: any[];
+  notes: Note[];
   tags: any[];
 };
