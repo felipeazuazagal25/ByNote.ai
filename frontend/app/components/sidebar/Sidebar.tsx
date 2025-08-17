@@ -12,7 +12,18 @@ import ButtonWithShortcut from "~/components/ui/button-shortchut";
 import { CreateNoteShortcuts, CreateProjectShortcuts } from "~/utils/shortcuts";
 import { FolderClosed, StickyNote } from "lucide-react";
 import { buttonVariants } from "../ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogHeader,
+  DialogFooter,
+} from "../ui/dialog";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 const AppSidebar = ({
   open = true,
@@ -23,6 +34,7 @@ const AppSidebar = ({
   setOpen: (open: boolean) => void;
   workspace: any;
 }) => {
+  const [projectDialogOpen, setProjectDialogOpen] = useState(false);
   const noteFetcher = useFetcher();
   const noteFetcherData = noteFetcher.data;
   const noteIsSubmitting = noteFetcher.state === "submitting";
@@ -85,7 +97,7 @@ const AppSidebar = ({
                 OS="macOS"
                 variant="outline"
                 onClick={() => {
-                  console.log("Creating New Project...");
+                  setProjectDialogOpen(true);
                 }}
                 submiting={false}
               >
@@ -122,8 +134,61 @@ const AppSidebar = ({
           </CardFooter>
         </Card>
       </motion.div>
+      <ProjectDialog
+        dialogOpen={projectDialogOpen}
+        setDialogOpen={setProjectDialogOpen}
+      />
     </motion.div>
   );
 };
 
 export default AppSidebar;
+
+const ProjectDialog = ({
+  dialogOpen,
+  setDialogOpen,
+}: {
+  dialogOpen: boolean;
+  setDialogOpen: (value: boolean) => void;
+}) => {
+  const projectFetcher = useFetcher();
+  return (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <projectFetcher.Form method="post" action={`projects/create`}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Project</DialogTitle>
+            <DialogDescription>
+              This dialog is for creating a note
+            </DialogDescription>
+          </DialogHeader>
+          <div className="w-full flex flex-col gap-y-4 ">
+            <div>
+              <Label>Name</Label>
+              <Input
+                type="text"
+                placeholder=""
+                name="name"
+                className=""
+                autoComplete="off"
+              />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input
+                type="text"
+                placeholder=""
+                name="description"
+                className=""
+                autoComplete="off"
+              />
+            </div>
+          </div>
+        </DialogContent>
+        <DialogFooter>
+          <Button type="submit">Create</Button>
+        </DialogFooter>
+      </projectFetcher.Form>
+    </Dialog>
+  );
+};

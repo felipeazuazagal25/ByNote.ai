@@ -16,6 +16,8 @@ class NoteMinimal(NoteBase):
     id: uuid.UUID
     slug: str
     urlString: str
+    created_at: datetime
+    updated_at: datetime
     # embedding_id: uuid.UUID
     class Config:
         from_attributes = True

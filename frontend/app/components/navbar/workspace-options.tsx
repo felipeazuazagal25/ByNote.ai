@@ -93,6 +93,7 @@ const WorkspaceOptionsButton = ({
           <DropdownMenuItem
             onSelect={(e) => {
               e.preventDefault();
+              setDropdownMenuOpen(false);
               setDeleteDialogOpen(true);
             }}
             className="text-red-600 dark:text-red-400 "
@@ -107,6 +108,7 @@ const WorkspaceOptionsButton = ({
             <DropdownMenuItem
               onClick={(e) => {
                 e.preventDefault();
+                setDropdownMenuOpen(false);
                 setCreateDialogOpen(true);
               }}
             >
@@ -131,8 +133,18 @@ const WorkspaceOptionsButton = ({
       </Dialog>
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <CreateWorkspaceDialog
-          onCloseDialog={() => setCreateDialogOpen(false)}
-          onCloseDropdownMenu={() => setDropdownMenuOpen(false)}
+          onCloseDialog={() => {
+            setCreateDialogOpen(false);
+            if (!open) {
+              document.body.focus();
+            }
+          }}
+          onCloseDropdownMenu={() => {
+            setDropdownMenuOpen(false);
+            if (!open) {
+              document.body.focus();
+            }
+          }}
         />
       </Dialog>
     </>
@@ -249,7 +261,6 @@ const CreateWorkspaceDialog = ({
   useEffect(() => {
     if (fetcherData?.success) {
       onCloseDialog();
-      onCloseDropdownMenu();
       navigate(`/${fetcherData.slug}`);
     }
   }, [fetcherData]);
@@ -264,7 +275,7 @@ const CreateWorkspaceDialog = ({
           <DialogTitle>Create a new workspace</DialogTitle>
         </DialogHeader>
         <div className="text-sm text-gray-500">Fill out the information.</div>
-        <DialogDescription className="flex flex-col gap-y-2 my-4">
+        <div className="flex flex-col gap-y-2 my-4">
           <div>
             <Label>Name</Label>
             <Input
@@ -288,9 +299,11 @@ const CreateWorkspaceDialog = ({
           {fetcherData?.error && (
             <div className="text-sm text-red-500">{fetcherData.error}</div>
           )}
-        </DialogDescription>
+        </div>
         <DialogFooter className="flex justify-end items-center">
-          <Button>{isSubmitting ? "Creating..." : "Create"}</Button>
+          <Button type="submit">
+            {isSubmitting ? "Creating..." : "Create"}
+          </Button>
         </DialogFooter>
       </createWorkspaceFetcher.Form>
     </DialogContent>

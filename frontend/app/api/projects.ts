@@ -46,3 +46,7 @@ export const getProjectBySlug = async (
 
   return response.json();
 };
+
+// MISSING FUNCTIONS
+// 1. Create
+// 2. Delete

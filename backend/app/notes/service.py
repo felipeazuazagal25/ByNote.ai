@@ -120,18 +120,18 @@ async def delete_note(note_id: uuid.UUID, db: AsyncSession = Depends(get_db), us
     db_note = result.scalar_one_or_none()
     if not db_note:
         raise HTTPException(status_code=404, detail="Note not found")
-    # Search the embedding
-    embedding_id = db_note.embedding_id
-    embedding_query = select(Embedding).filter(Embedding.id == embedding_id)
-    embedding = await db.execute(embedding_query)
-    embedding = embedding.scalar_one_or_none()
-    if not embedding:
-        raise HTTPException(status_code=404, detail="Embedding not found")
+    # # Search the embedding
+    # embedding_id = db_note.embedding_id
+    # embedding_query = select(Embedding).filter(Embedding.id == embedding_id)
+    # embedding = await db.execute(embedding_query)
+    # embedding = embedding.scalar_one_or_none()
+    # if not embedding:
+    #     raise HTTPException(status_code=404, detail="Embedding not found")
     
     # Delete first the note, because of the foreign key constraint, and then the embedding
     await db.delete(db_note)
     await db.commit()
-    await db.delete(embedding)
-    await db.commit()
+    # await db.delete(embedding)
+    # await db.commit()
     
     return {"message": "Note (and its embedding) deleted successfully"}
