@@ -47,7 +47,7 @@ const AppSidebar = ({
   return (
     <motion.div
       initial={false}
-      className="flex flex-col pl-5 pr-[10px] z-10 "
+      className="flex flex-col pl-5 pr-[10px] z-10"
       animate={{
         width: open ? "30%" : "0px",
         minWidth: open ? "16rem" : "0px",

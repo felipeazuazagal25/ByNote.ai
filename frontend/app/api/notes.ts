@@ -25,14 +25,14 @@ export const createNote = async (
   workspaceSlug: string,
   title: string,
   text_content: string,
-  rich_content: JSON
+  rich_content: string
 ) => {
   const response = await authFetch(request, `/notes/${workspaceSlug}`, {
     method: "POST",
     body: JSON.stringify({
       title,
       text_content,
-      rich_content: {},
+      rich_content: JSON.parse(rich_content),
       is_archived: false,
       is_shared: false,
       is_starred: false,
@@ -40,4 +40,37 @@ export const createNote = async (
     }),
   });
   return response.json();
+};
+
+export const editNote = async (
+  request: Request,
+  noteId: string,
+  title: string,
+  text_content: string,
+  rich_content: string,
+  is_archived: boolean,
+  is_shared: boolean,
+  is_starred: boolean,
+  is_pinned: boolean
+) => {
+  const response = await authFetch(request, `/notes/${noteId}`, {
+    method: "PUT",
+    body: JSON.stringify({
+      title,
+      text_content,
+      rich_content: JSON.parse(rich_content),
+      is_archived,
+      is_shared,
+      is_starred,
+      is_pinned,
+    }),
+  });
+  return response.json();
+};
+
+export const deleteNote = async (request: Request, noteId: string) => {
+  const response = await authFetch(request, `/notes/${noteId}`, {
+    method: "DELETE",
+  });
+  return response;
 };

@@ -30,7 +30,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     ...userInfo
   } = user;
   const defaultWorkspaceId = user.default_workspace_id;
-  console.log("this is the pathname", pathname);
+  // console.log("this is the pathname", pathname);
 
   // Identify the page to load
   if (pathname === "/") {
@@ -49,7 +49,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     try {
       const workspace = await getWorkspaceBySlug(request, workspaceSlug);
       const loadDefaultApp = pathname === `/${workspace.slug}`; // Load default app of another workspace
-      if (DEBUG) console.log("projectSlug", projectSlug);
+      // if (DEBUG) console.log("projectSlug", projectSlug);
       return new Response(
         JSON.stringify({ loadDefaultApp, workspace, workspaces, userInfo }),
         {

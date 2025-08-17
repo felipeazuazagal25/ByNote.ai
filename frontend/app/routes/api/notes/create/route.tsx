@@ -7,7 +7,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("this is formData", formData);
   const title = formData.get("title") as string;
   const text_content = formData.get("text_content") as string;
-  const rich_content = (formData.get("rich_content") || {}) as JSON;
+  const rich_content = (formData.get("rich_content") || {}) as string;
   const workspaceSlug = formData.get("workspaceSlug") as string;
   console.log("this is rich_context", JSON.stringify(rich_content));
   const result = await createNote(
