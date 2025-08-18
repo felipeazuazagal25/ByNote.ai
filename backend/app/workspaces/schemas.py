@@ -3,6 +3,7 @@ from typing import Optional
 import uuid
 from datetime import datetime
 from app.projects.schemas import ProjectOut
+from app.notes.schemas import NoteMinimal,NoteOut
 from typing import List
 
 class WorkspaceCreate(BaseModel):
@@ -40,7 +41,7 @@ class WorkspaceOut(BaseModel):
     updated_at: datetime
     deleted_at: Optional[datetime] = None
     topNProjects: List[ProjectOut] = None
-    topNNotes: Optional[List[ProjectOut]] = None
+    topNNotes: List[NoteMinimal] = None
 
     class Config:
         from_attributes = True

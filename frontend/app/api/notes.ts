@@ -23,11 +23,13 @@ export const getNote = async (
 export const createNote = async (
   request: Request,
   workspaceSlug: string,
+  projectSlug: string = "",
   title: string,
   text_content: string,
   rich_content: string
 ) => {
-  const response = await authFetch(request, `/notes/${workspaceSlug}`, {
+  const requestUrl = `/notes/${workspaceSlug}?project_slug=${projectSlug}`;
+  const response = await authFetch(request, requestUrl, {
     method: "POST",
     body: JSON.stringify({
       title,

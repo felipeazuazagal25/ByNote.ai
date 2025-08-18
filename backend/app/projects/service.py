@@ -7,9 +7,17 @@ from fastapi import Depends, HTTPException
 from app.models import User
 from sqlalchemy import select
 import uuid
+from app.workspaces.service import get_workspace_by_slug
 
-async def create_project(project: ProjectCreate, workspace_id: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
-    db_project = Project(**project.model_dump(), workspace_id=workspace_id)
+async def create_project(project: ProjectCreate, workspace_slug: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    # Get the workspaceId
+    if workspace_slug is None:
+        worskpace_id = user.default_workspace_id
+    else:
+        db_workspace = await get_workspace_by_slug(workspace_slug, db, user)
+        worskpace_id = db_workspace.id
+
+    db_project = Project(**project.model_dump(), workspace_id=worskpace_id)
     db.add(db_project)
     await db.commit()
     await db.refresh(db_project)

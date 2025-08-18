@@ -4,24 +4,29 @@ import { useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
 import { getWorkspace, getWorkspaceBySlug } from "~/api/workspaces";
 import { Outlet } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaceSlug = params.workspaceSlug || "personal"; // Default
   const workspace = await getWorkspaceBySlug(request, workspaceSlug);
   const projects = await getProjects(request, workspace.id);
-  return { projects };
+  return { workspaceSlug, projects };
 };
 
 const Projects = () => {
-  const loaderData = useLoaderData();
-  useEffect(() => {
-    console.log(loaderData);
-  }, []);
+  const { workspaceSlug, projects } = useLoaderData<typeof loader>();
+  // useEffect(() => {
+  //   console.log(loaderData);
+  // }, []);
 
   return (
-    <div>
-      This is a list of projects
-      <Outlet />
+    <div className="w-full flex flex-col gap-y-2">
+      {projects.map((project: any) => (
+        <Link to={`/${workspaceSlug}/${project.slug}`} className="w-full">
+          {project.name}
+        </Link>
+      ))}
+      {/* <Outlet /> */}
     </div>
   );
 };

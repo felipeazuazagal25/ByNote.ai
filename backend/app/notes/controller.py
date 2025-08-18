@@ -17,7 +17,7 @@ router = APIRouter(prefix='/notes', tags=['notes'], dependencies=[Depends(curren
 
 
 @router.post("/{workspace_slug}", response_model=NoteOut)
-async def create_note_route(workspace_slug:str,note: NoteCreate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+async def create_note_route(workspace_slug:str, note: NoteCreate, project_slug:str | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     """
     Create a new note.
 
@@ -30,7 +30,7 @@ async def create_note_route(workspace_slug:str,note: NoteCreate, db: AsyncSessio
     Returns:
     - The created note with all its details
     """
-    db_note = await create_note(note, workspace_slug, db, user)
+    db_note = await create_note(note, workspace_slug,project_slug, db, user)
     return db_note
 
 

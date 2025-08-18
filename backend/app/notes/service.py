@@ -24,26 +24,29 @@ from app.models import Embedding
 
 logger = logging.getLogger('bynote')
 
-async def create_note(note: NoteCreate, workspace_slug: uuid.UUID | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
+async def create_note(note: NoteCreate, workspace_slug: str, project_slug:str | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)) -> Note:
+    if project_slug is None:
+        project_filter = 'inbox'
+    else:
+        project_filter = project_slug
     db_workspace = await get_workspace_by_slug(workspace_slug, db, user)
-    project_result = await db.execute(select(Project).where(Project.workspace_id == db_workspace.id, Project.slug == "inbox"))
+    project_result = await db.execute(select(Project).where(Project.workspace_id == db_workspace.id, Project.slug == project_filter))
     db_project = project_result.scalar_one_or_none()
-    db_note = Note(**note.model_dump(), project_id=db_project.id)
-    
-    # Create embedding for the note
-    embedding_service = EmbeddingService(provider=BertEmbeddingProvider())
-    
+    db_note = Note(**note.model_dump(), project_id=db_project.id)    
     db.add(db_note)
+    db_project.updated_at = datetime.now()
+
     await db.commit()
     await db.refresh(db_note)
-    print(db_note)
-    
+    await db.refresh(db_project)
+
+    # Create embedding for the note
+    embedding_service = EmbeddingService(provider=BertEmbeddingProvider())
     try:
         await embedding_service.create_embedding(db, db_note, user)
     except Exception as e:
         logger.error(f"Error creating embedding for note {db_note.id}: {e}")
         raise HTTPException(status_code=500, detail="Error creating embedding for note")
-    
     return db_note
     
 

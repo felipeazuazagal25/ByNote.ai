@@ -8,6 +8,15 @@ import uuid
 from sqlalchemy import select
 from datetime import datetime
 from app.models import Project
+import logging
+import sys
+
+logger = logging.getLogger(name="bynote-workspaces-service")
+formatter = logging.Formatter(fmt="%(asctime)s - %(name)s - %(levelname)s %(message)s",datefmt="%Y-%m-%d %H:%M:%S")
+handler=logging.StreamHandler(sys.stdout)
+handler.setFormatter(formatter)
+logger.setLevel(level=logging.INFO)
+logger.addHandler(handler)
 
 async def create_workspace(workspace: WorkspaceCreate, db: AsyncSession, user: User):
     try:
@@ -53,6 +62,7 @@ async def get_workspace(workspace_id: uuid.UUID, db: AsyncSession, user: User):
 
 
 async def get_workspaces(db: AsyncSession, user: User):
+    logger.info(msg='TESTING THE SERVICE LOGGER')
     try:
         query = select(Workspace).where(Workspace.user_id == user.id,Workspace.is_deleted == False)
         response = await db.execute(query)
@@ -62,14 +72,36 @@ async def get_workspaces(db: AsyncSession, user: User):
         raise HTTPException(status_code=500,detail=str(e))
 
 async def get_workspace_by_slug(workspace_slug:str,db: AsyncSession, user: User):
+    logger.info(msg="initiaing getting workspace by slug")
     try:
         query = select(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_slug, Workspace.is_deleted == False)
         response = await db.execute(query)
         db_workspace = response.scalar_one_or_none()
         if not db_workspace:
             raise HTTPException(status_code=404, detail="Workspace not found")
-        # Add the topNProjects
-        db_workspace.topNProjects = [p for p in db_workspace.get_topNProjects(5)]
+    
+        # Add the topNProjects & topNNotes
+        try:
+            print("Workspace not found!", flush=True)
+            projects = db_workspace.get_topNProjects(5)
+            logger.info(msg=f"Found {len(projects)} top projects")
+            db_workspace.topNProjects = [p for p in projects]
+        except Exception as e:
+            logger.error(f"Error getting top projects: {str(e)}")
+            db_workspace.topNProjects = []
+            
+        try:
+            logger.info(msg="Getting top notes...")
+            notes = db_workspace.get_topNNotes(5)
+            logger.info(msg=f"Found {len(notes)} top notes")
+            logger.info(msg=f"{notes}")
+            db_workspace.topNNotes = [n for n in notes]
+        except Exception as e:
+            logger.error(f"Error getting top notes: {str(e)}, {type(e)}")
+            logger.exception("Full traceback:")
+            db_workspace.topNNotes = []
+
+        sys.stdout.flush()
         return db_workspace
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))

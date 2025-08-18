@@ -13,8 +13,8 @@ import uuid
 router = APIRouter(prefix='/projects', tags=['projects'], dependencies=[Depends(current_active_user)])
 
 @router.post('/', response_model=ProjectOut, status_code = 201)
-async def create_project_route(project: ProjectCreate, workspace_id:str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
-    db_project = await create_project(project,workspace_id, db, user)
+async def create_project_route(project: ProjectCreate, workspace_slug:str | None = None, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    db_project = await create_project(project,workspace_slug, db, user)
     return db_project
 
 

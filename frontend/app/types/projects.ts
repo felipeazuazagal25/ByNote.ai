@@ -3,6 +3,7 @@ import { Note } from "./notes";
 export type Project = {
   id: string;
   name: string;
+  slug: string;
   description: string;
   is_archived: boolean;
   is_shared: boolean;

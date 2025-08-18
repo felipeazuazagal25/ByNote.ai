@@ -12,6 +12,7 @@ from sqlalchemy import UniqueConstraint
 if TYPE_CHECKING:
     from app.models import User
     from app.models import Project
+    from app.models import Note
 
 
 class Workspace(Base):
@@ -56,6 +57,14 @@ class Workspace(Base):
     projects: Mapped[List["Project"]] = relationship(back_populates="workspace", lazy="selectin", cascade="all, delete-orphan")
     def get_topNProjects(self, n: int = 5) -> List["Project"]:
         return sorted(self.projects, key=lambda p: p.updated_at, reverse=True)[:n]
+    
+    def get_topNNotes(self, n: int = 5) -> List["Note"]:
+        all_notes = []
+        print(f"Workspace {self.name} has {len(self.projects)} projects")
+        for project in self.projects:
+            all_notes.extend(project.notes)
+        print(f"Total notes found: {len(all_notes)}")
+        return all_notes[:n]
 
     def __repr__(self) -> str:
         return f"<Workspace {self.name}>"

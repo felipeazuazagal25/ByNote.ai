@@ -130,3 +130,8 @@ body,
     -webkit-text-fill-color: #fefefe; /* Change text color */
   }
 }
+
+.dark [style] {
+  border-color: var(--border-dark) !important;
+  /* background-color: var(--background-project-color-light) !important; */
+}

@@ -45,7 +45,7 @@ export default function ProjectNotesList() {
                 <motion.div
                   layoutId={`note-${note.id}`}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="p-4 rounded-xl border shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900"
+                  className="p-4 rounded-xl outline outline-1 outline-gray-200 dark:outline-gray-800 shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900"
                 >
                   {/* Shared bounding box for the title */}
                   <motion.div

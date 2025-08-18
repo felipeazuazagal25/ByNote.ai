@@ -6,7 +6,7 @@ import {
   useNavigate,
 } from "@remix-run/react";
 import { getNote } from "~/api/notes";
-import { delay, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Note } from "~/types/notes";
 import { Separator } from "~/components/ui/separator";
 import { useEffect, useState } from "react";
@@ -17,7 +17,7 @@ import { TrashIcon } from "lucide-react";
 
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { SimpleEditor } from "~/components/tiptap-templates/simple/simple-editor";
+// import { SimpleEditor } from "~/components/tiptap-templates/simple/simple-editor";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaceSlug = params.workspaceSlug as string;

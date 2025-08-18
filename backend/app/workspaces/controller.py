@@ -7,9 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from app.models import User
 import uuid
+import logging
+import sys
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"], dependencies=[Depends(current_active_user)])
 
+logger = logging.getLogger(name="bynote-workspaces")
+formatter = logging.Formatter(fmt="%(asctime)s - %(name)s - %(levelname)s %(message)s",datefmt="%Y-%m-%d %H:%M:%S")
+handler=logging.StreamHandler(sys.stdout)
+handler.setFormatter(formatter)
+logger.setLevel(level=logging.INFO)
+logger.addHandler(handler)
 
 @router.post("/", response_model=WorkspaceOut)
 async def create_workspace_route(workspace: WorkspaceCreate, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
@@ -18,6 +26,7 @@ async def create_workspace_route(workspace: WorkspaceCreate, db: AsyncSession = 
 
 @router.get("/", response_model=List[WorkspaceOut])
 async def get_workspaces_route(db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    logger.info(msg='this is a new logger')
     return await get_workspaces(db, user)
 
 
