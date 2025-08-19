@@ -19,28 +19,16 @@ import {
   DialogDescription,
   DialogTitle,
   DialogHeader,
-  DialogFooter,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { palette, PaletteKey } from "~/lib/colorList";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-
-import { lazy, Suspense } from "react";
 
 import { EmojiPickerPopover } from "./EmojiPicker";
 import { useDarkMode } from "~/hooks/useDarkMode";
 
 import { Form } from "@remix-run/react";
-
-import {
-  EmojiPicker,
-  EmojiPickerSearch,
-  EmojiPickerContent,
-} from "~/components/ui/emoji-picker";
-import { Workspace } from "~/types/workspaces";
-import { Project } from "~/types/projects";
 
 const AppSidebar = ({
   open = true,
@@ -176,33 +164,34 @@ const ProjectDialog = ({
   const workspaceSlug = params.workspaceSlug || "";
   const projectFetcher = useFetcher();
   const isDark = useDarkMode();
-  const [selected, setSelected] = useState<PaletteKey>("bw");
-  const [selectedIcon, setSelectedIcon] = useState("📚");
   const colors: PaletteKey[] = Object.keys(palette) as PaletteKey[];
-  // const hexSelectedLight = palette[selected].mainLight;
-  // const hexSelectedLightBackground = palette[selected].backgroundLight;
-  // const hexSelectedDark = palette[selected].mainDark;
-  // const hexSelectedDarkBackground = palette[selected].backgroundDark;
   const [iconModalOpen, setIconModalOpen] = useState(false);
 
-  // useEffect(() => {
-  //   console.log("this is the projectfetcherdata", projectFetcherData);
-  //   console.log("this is the projectfetcher state", projectFetcherState);
-  // }, [projectFetcherData, projectFetcherState]);
+  // Form info a helper functions
+  const [initialFormData, setInitialFormData] = useState<{
+    name: string;
+    description: string;
+    icon: string;
+    color: PaletteKey;
+  }>({
+    name: "",
+    description: "",
+    icon: "📚",
+    color: "bw",
+  });
+
+  const handleUpdateFormData = (item: string, value: any) => {
+    const newInitialFormData = { ...initialFormData, [item]: value };
+    setInitialFormData(newInitialFormData);
+  };
+
   const handleButtonClick = async () => {
+    console.log("this is the formData", initialFormData);
     const formData = new FormData();
-    formData.append(
-      "name",
-      document.querySelector<HTMLInputElement>('input[name="name"]')?.value ||
-        ""
-    );
-    formData.append(
-      "description",
-      document.querySelector<HTMLInputElement>('input[name="description"]')
-        ?.value || ""
-    );
-    formData.append("icon", selectedIcon);
-    formData.append("color", selected);
+    formData.append("name", initialFormData["name"]);
+    formData.append("description", initialFormData["description"]);
+    formData.append("icon", initialFormData["icon"]);
+    formData.append("color", initialFormData["color"]);
     formData.append("workspaceSlug", workspaceSlug);
 
     await projectFetcher.submit(formData, {
@@ -215,114 +204,107 @@ const ProjectDialog = ({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <Form
-        method="post"
-        action="/api/projects/create"
-        // onSubmit={(event) => {
-        //   event.preventDefault();
-        //   const form = event.currentTarget;
-        //   const formData = new FormData(form);
-
-        //   projectFetcher.submit(formData, {
-        //     method: "POST",
-        //     action: "/api/projects/create",
-        //   });
+      <DialogContent
+        // style={{
+        //   backgroundColor: isDark ? "" : palette[selected].backgroundLight,
         // }}
+        onPointerDownOutside={(e) => {
+          if (iconModalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+        onEscapeKeyDown={(e) => {
+          if (iconModalOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
       >
-        <DialogContent
-          // style={{
-          //   backgroundColor: isDark ? "" : palette[selected].backgroundLight,
-          // }}
-          onPointerDownOutside={(e) => {
-            if (iconModalOpen) {
-              e.preventDefault();
-              e.stopPropagation();
-            }
-          }}
-          onEscapeKeyDown={(e) => {
-            if (iconModalOpen) {
-              e.preventDefault();
-              e.stopPropagation();
-            }
-          }}
-        >
-          <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
-            <DialogDescription>Give it your style!</DialogDescription>
-          </DialogHeader>
-          <div className="w-full flex flex-col gap-y-4">
-            <div>
-              <Label>Name</Label>
-              <div className="flex">
-                <EmojiPickerPopover
-                  isOpen={iconModalOpen}
-                  setIsOpen={setIconModalOpen}
-                  onEmojiSelect={(emoji) => {
-                    setIconModalOpen(false);
-                    setSelectedIcon(emoji.native);
-                  }}
-                />
-                <input type="hidden" name="icon" value={selectedIcon} />
-                <Input
-                  type="text"
-                  placeholder=""
-                  name="name"
-                  className="w-full"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Description</Label>
+        <DialogHeader>
+          <DialogTitle>Create New Project</DialogTitle>
+          <DialogDescription>Give it your style!</DialogDescription>
+        </DialogHeader>
+        <div className="w-full flex flex-col gap-y-4">
+          <div>
+            <Label>Name</Label>
+            <div className="flex">
+              <EmojiPickerPopover
+                isOpen={iconModalOpen}
+                setIsOpen={setIconModalOpen}
+                onEmojiSelect={(emoji) => {
+                  setIconModalOpen(false);
+                  // setSelectedIcon(emoji.native);
+                  handleUpdateFormData("icon", emoji.native);
+                }}
+              />
               <Input
                 type="text"
                 placeholder=""
-                name="description"
-                className=""
+                name="name"
+                className="w-full"
                 autoComplete="off"
+                onChange={(e) => {
+                  const text = e.target.value;
+                  handleUpdateFormData("name", text);
+                }}
               />
             </div>
-            <div>
-              <Label>Color</Label>
-              <div className="flex gap-3 mt-2">
-                {colors.map((name) => (
-                  <motion.button
-                    key={name}
-                    type="button"
-                    onClick={() => setSelected(name)}
-                    // ${selected === name &&"outline outline-gray-300  dark:outline-gray-800"}
-                    className={`w-6 h-6`}
-                    initial={false}
-                    animate={{
-                      borderRadius: selected === name ? "6px" : "18px",
-                    }}
-                    transition={{
-                      duration: 0.15,
-                      ease: "easeInOut",
-                    }}
-                    style={{
-                      backgroundColor: isDark
-                        ? palette[name].mainDark
-                        : palette[name].mainLight,
-                    }}
-                  />
-                ))}
-              </div>
-              <input type="hidden" name="color" value={selected} />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Input
+              type="text"
+              placeholder=""
+              name="description"
+              className=""
+              autoComplete="off"
+              onChange={(e) => {
+                const text = e.target.value;
+                handleUpdateFormData("description", text);
+              }}
+            />
+          </div>
+          <div>
+            <Label>Color</Label>
+            <div className="flex gap-3 mt-2">
+              {colors.map((name) => (
+                <motion.button
+                  key={name}
+                  type="button"
+                  onClick={() => handleUpdateFormData("color", name)}
+                  // ${selected === name &&"outline outline-gray-300  dark:outline-gray-800"}
+                  className={`w-6 h-6`}
+                  initial={false}
+                  animate={{
+                    borderRadius:
+                      initialFormData["color"] === name ? "6px" : "18px",
+                  }}
+                  transition={{
+                    duration: 0.15,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    backgroundColor: isDark
+                      ? palette[name].mainDark
+                      : palette[name].mainLight,
+                  }}
+                />
+              ))}
             </div>
           </div>
-          <div className="flex justify-end">
-            <Button
-              onClick={handleButtonClick}
-              // style={{
-              //   backgroundColor: isDark ? palette[selected].mainDark : "black",
-              // }}
-            >
-              Create
-            </Button>
-          </div>
-        </DialogContent>
-      </Form>
+        </div>
+        <div className="flex justify-end">
+          <Button
+            onClick={handleButtonClick}
+            // style={{
+            //   backgroundColor: isDark ? palette[selected].mainDark : "black",
+            // }}
+          >
+            Create
+          </Button>
+        </div>
+      </DialogContent>
     </Dialog>
   );
 };
