@@ -62,6 +62,7 @@ class Workspace(Base):
         all_notes = []
         print(f"Workspace {self.name} has {len(self.projects)} projects")
         for project in self.projects:
+            print(project.notes)
             all_notes.extend(project.notes)
         print(f"Total notes found: {len(all_notes)}")
         return all_notes[:n]

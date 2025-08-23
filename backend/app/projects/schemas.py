@@ -10,6 +10,7 @@ class ProjectBase(BaseModel):
     is_archived: bool = False
     is_shared: bool = False
     is_deleted:bool = False
+    ui_order:int = 0
     ui_color: Optional[str] = None
     ui_icon: Optional[str] = None
     ui_theme: Optional[str] = None

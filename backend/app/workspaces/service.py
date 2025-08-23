@@ -82,19 +82,14 @@ async def get_workspace_by_slug(workspace_slug:str,db: AsyncSession, user: User)
     
         # Add the topNProjects & topNNotes
         try:
-            print("Workspace not found!", flush=True)
             projects = db_workspace.get_topNProjects(5)
-            logger.info(msg=f"Found {len(projects)} top projects")
             db_workspace.topNProjects = [p for p in projects]
         except Exception as e:
             logger.error(f"Error getting top projects: {str(e)}")
             db_workspace.topNProjects = []
             
         try:
-            logger.info(msg="Getting top notes...")
             notes = db_workspace.get_topNNotes(5)
-            logger.info(msg=f"Found {len(notes)} top notes")
-            logger.info(msg=f"{notes}")
             db_workspace.topNNotes = [n for n in notes]
         except Exception as e:
             logger.error(f"Error getting top notes: {str(e)}, {type(e)}")

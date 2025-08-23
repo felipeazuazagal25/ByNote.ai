@@ -161,7 +161,7 @@ export default function NoteEditor() {
       <div className="flex-1 min-h-0 relative">
         <EditorContent
           editor={editor}
-          className="absolute inset-0 overflow-auto p-4 foucs:outline-none"
+          className="absolute inset-0 overflow-auto p-4 focus:outline-none"
         />
       </div>
     </motion.div>

@@ -18,7 +18,7 @@ async def create_project_route(project: ProjectCreate, workspace_slug:str | None
     return db_project
 
 
-@router.get('/', response_model = List[ProjectOut], status_code = 200)
+@router.get('/', response_model = List[ProjectOutFull], status_code = 200)
 async def get_projects_route(workspace_id:str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     projects = await get_projects(workspace_id, db, user)
     return projects

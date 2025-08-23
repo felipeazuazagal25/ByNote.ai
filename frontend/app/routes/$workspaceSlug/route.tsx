@@ -7,6 +7,7 @@ import {
   getWorkspace,
   getWorkspaceBySlug,
 } from "../../api/workspaces";
+import { getProjects } from "~/api/projects";
 import { useEffect, useState } from "react";
 import AppSidebar from "~/components/sidebar/Sidebar";
 import Navbar from "~/components/navbar/navbar";
@@ -36,9 +37,16 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (pathname === "/") {
     // Default behavior when user is logged in
     const workspace = await getWorkspace(request, defaultWorkspaceId);
+    const projects = await getProjects(request, workspace.id);
     if (DEBUG) console.log("workspace", workspace);
     return new Response(
-      JSON.stringify({ loadDefaultApp: true, workspace, workspaces, userInfo }),
+      JSON.stringify({
+        loadDefaultApp: true,
+        workspace,
+        workspaces,
+        userInfo,
+        projects,
+      }),
       {
         headers: {
           "Content-Type": "application/json",
@@ -48,10 +56,17 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   } else if (workspaceSlug) {
     try {
       const workspace = await getWorkspaceBySlug(request, workspaceSlug);
+      const projects = await getProjects(request, workspace.id);
       const loadDefaultApp = pathname === `/${workspace.slug}`; // Load default app of another workspace
       // if (DEBUG) console.log("projectSlug", projectSlug);
       return new Response(
-        JSON.stringify({ loadDefaultApp, workspace, workspaces, userInfo }),
+        JSON.stringify({
+          loadDefaultApp,
+          workspace,
+          workspaces,
+          userInfo,
+          projects,
+        }),
         {
           headers: {
             "Content-Type": "application/json",
@@ -76,7 +91,7 @@ const Layout = () => {
     console.log("this is loaderData", loaderData);
   }, []);
 
-  const { loadDefaultApp, workspace, workspaces, userInfo } =
+  const { loadDefaultApp, workspace, workspaces, userInfo, projects } =
     useLoaderData<typeof loader>();
   return (
     <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 flex flex-col h-screen">
@@ -92,6 +107,7 @@ const Layout = () => {
           open={showSidebar}
           setOpen={setShowSidebar}
           workspace={workspace}
+          projects={projects}
         />
         {loadDefaultApp ? <DefaultApp /> : <Outlet />}
       </div>

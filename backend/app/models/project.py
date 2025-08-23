@@ -44,6 +44,7 @@ class Project(Base):
     is_shared: Mapped[bool] = mapped_column(nullable=False)
 
     # UI
+    ui_order: Mapped[int] = mapped_column(nullable=False, default=0)
     ui_color: Mapped[str] = mapped_column(nullable=True)
     ui_icon: Mapped[str] = mapped_column(nullable=True)
     ui_theme: Mapped[str] = mapped_column(nullable=True)

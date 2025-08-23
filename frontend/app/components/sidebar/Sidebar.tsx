@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "~/components/ui/card";
-import { ObjectGroup } from "~/components/sidebar/ObjectGroup";
+import { ProjectGroup, NoteGroup } from "~/components/sidebar/ObjectGroup";
 import ButtonWithShortcut from "~/components/ui/button-shortchut";
 import { CreateNoteShortcuts, CreateProjectShortcuts } from "~/utils/shortcuts";
 import { FolderClosed, StickyNote } from "lucide-react";
@@ -30,14 +30,19 @@ import { useDarkMode } from "~/hooks/useDarkMode";
 
 import { Form } from "@remix-run/react";
 
+import { ProjectNotes } from "./ProjectNotes";
+import type { Project } from "~/types/projects";
+
 const AppSidebar = ({
   open = true,
   setOpen,
   workspace,
+  projects,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   workspace: any;
+  projects: Project[];
 }) => {
   const params = useParams();
   const projectSlug = params.projectSlug;
@@ -88,7 +93,7 @@ const AppSidebar = ({
           ease: "easeInOut",
         }}
       >
-        <Card className="flex-1 w-full flex flex-col text-nowrap bg-white dark:bg-black">
+        <Card className="flex-1 w-full flex flex-col text-nowrap bg-white dark:bg-black h-full min-h-0 relative">
           <CardHeader>
             <div className="flex flex-col gap-2">
               <ButtonWithShortcut
@@ -114,24 +119,34 @@ const AppSidebar = ({
               </ButtonWithShortcut>
             </div>
           </CardHeader>
-          <CardContent className="flex-1">
-            <CardDescription>
-              <div className="text-xs text-gray-500 font-serif">
-                Your Content
-              </div>
-              <ObjectGroup
+          <div className="text-sm text-gray-500 font-serif py-1 px-7 flex justify-between items-center">
+            <div>Your Projects</div>{" "}
+            <Link
+              to={`/${workspace.slug}/projects`}
+              className={`text-xs h-4 italic text-gray-400 dark:text-gray-600`}
+            >
+              See all
+            </Link>
+          </div>
+          <CardContent className="flex-1 h-full flex flex-col relative min-h-0">
+            <div className="overflow-auto h-full absolute top-0 inset-0 px-7">
+              {projects.map((project) => (
+                <ProjectNotes project={project} workspace={workspace} />
+              ))}
+            </div>
+
+            {/* <ProjectGroup
                 categoryName={"Projects"}
                 objects={workspace.topNProjects}
                 icon={<FolderClosed className="w-5 h-5" />}
                 showAllLink={`/${workspace.slug}/projects`}
               />
-              <ObjectGroup
+              <NoteGroup
                 categoryName={"Notes"}
                 objects={workspace.topNNotes}
                 icon={<StickyNote className="w-5 h-5" />}
                 showAllLink={`/${workspace.slug}/notes`}
-              />
-            </CardDescription>
+              /> */}
           </CardContent>
           <CardFooter>
             <Link
