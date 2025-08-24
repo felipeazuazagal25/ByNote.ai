@@ -1,4 +1,5 @@
 import { Note } from "./notes";
+import { PaletteKey } from "~/lib/colorList";
 
 export type Project = {
   id: string;
@@ -7,7 +8,7 @@ export type Project = {
   description: string;
   is_archived: boolean;
   is_shared: boolean;
-  ui_color: string;
+  ui_color: PaletteKey;
   ui_icon: string;
   ui_theme: string;
   ui_font: string;

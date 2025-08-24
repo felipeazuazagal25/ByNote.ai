@@ -8,6 +8,9 @@ from app.models import User
 from sqlalchemy import select
 import uuid
 from app.workspaces.service import get_workspace_by_slug
+from app.models.workspace import Workspace
+from datetime import datetime
+
 
 async def create_project(project: ProjectCreate, workspace_slug: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
     # Get the workspaceId
@@ -46,12 +49,18 @@ async def get_project_by_slug(project_slug: str,workspace_id:uuid.UUID, db: Asyn
     return project
 
 async def update_project(project_id: uuid.UUID, project: ProjectUpdate, db: AsyncSession, user: User):
-    response = await db.execute(select(Project).where(Project.id == project_id, Project.user_id == user.id))
+    query = (select(Project)
+             .join(Workspace, Project.workspace_id == Workspace.id)
+             .where(Project.id == project_id, Workspace.user_id == user.id))
+    response = await db.execute(query)
     db_project = response.scalar_one_or_none()
     if db_project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     for field, value in project.model_dump().items():
         setattr(db_project, field, value)
+
+    db_project.updated_at = datetime.now()
+
     db.add(db_project)
     await db.commit()
     await db.refresh(db_project)

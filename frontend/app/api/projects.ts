@@ -82,6 +82,49 @@ export const createProject = async (
   return response.json();
 };
 
-// MISSING FUNCTIONS
-// 1. Create
-// 2. Delete
+export const editProject = async (
+  request: Request,
+  projectId: string,
+  name: string,
+  description: string,
+  is_archived: boolean,
+  is_shared: boolean,
+  is_deleted: boolean,
+  ui_color: string,
+  ui_icon: string,
+  ui_theme: string,
+  ui_font: string
+) => {
+  const requestUrl = `/projects/${projectId}`;
+  const response = await authFetch(request, requestUrl, {
+    method: "PUT",
+    body: JSON.stringify({
+      id: projectId,
+      name,
+      description,
+      is_archived,
+      is_shared,
+      is_deleted,
+      ui_color,
+      ui_icon,
+      ui_theme,
+      ui_font,
+    }),
+  });
+
+  return response.json();
+};
+
+export const deleteProject = async (
+  request: Request,
+  projectId: string,
+  workspaceSlug: string
+) => {
+  const requestUrl = `/projects/${projectId}`;
+
+  const response = await authFetch(request, requestUrl, {
+    method: "DELETE",
+  });
+
+  return response;
+};

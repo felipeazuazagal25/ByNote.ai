@@ -130,9 +130,16 @@ const AppSidebar = ({
           </div>
           <CardContent className="flex-1 h-full flex flex-col relative min-h-0">
             <div className="overflow-auto h-full absolute top-0 inset-0 px-7">
-              {projects.map((project) => (
-                <ProjectNotes project={project} workspace={workspace} />
-              ))}
+              {projects
+                .sort((a, b) => {
+                  return (
+                    new Date(b.updated_at).getTime() -
+                    new Date(a.updated_at).getTime()
+                  );
+                })
+                .map((project) => (
+                  <ProjectNotes project={project} workspace={workspace} />
+                ))}
             </div>
 
             {/* <ProjectGroup
@@ -161,6 +168,13 @@ const AppSidebar = ({
       <ProjectDialog
         dialogOpen={projectDialogOpen}
         setDialogOpen={setProjectDialogOpen}
+        originalData={{
+          name: "",
+          description: "",
+          icon: "📚",
+          color: "bw",
+        }}
+        newProject={true}
       />
     </motion.div>
   );
@@ -168,12 +182,25 @@ const AppSidebar = ({
 
 export default AppSidebar;
 
-const ProjectDialog = ({
+export type ProjectCreationDialog = {
+  name: string;
+  description: string;
+  icon: string;
+  color: PaletteKey;
+};
+
+export const ProjectDialog = ({
   dialogOpen,
   setDialogOpen,
+  originalData,
+  newProject,
+  projectId,
 }: {
   dialogOpen: boolean;
   setDialogOpen: (value: boolean) => void;
+  originalData: ProjectCreationDialog;
+  newProject?: boolean;
+  projectId?: string;
 }) => {
   const params = useParams();
   const workspaceSlug = params.workspaceSlug || "";
@@ -183,17 +210,8 @@ const ProjectDialog = ({
   const [iconModalOpen, setIconModalOpen] = useState(false);
 
   // Form info a helper functions
-  const [initialFormData, setInitialFormData] = useState<{
-    name: string;
-    description: string;
-    icon: string;
-    color: PaletteKey;
-  }>({
-    name: "",
-    description: "",
-    icon: "📚",
-    color: "bw",
-  });
+  const [initialFormData, setInitialFormData] =
+    useState<ProjectCreationDialog>(originalData);
 
   const handleUpdateFormData = (item: string, value: any) => {
     const newInitialFormData = { ...initialFormData, [item]: value };
@@ -203,17 +221,27 @@ const ProjectDialog = ({
   const handleButtonClick = async () => {
     console.log("this is the formData", initialFormData);
     const formData = new FormData();
+    const projectIdForm = projectId || "";
     formData.append("name", initialFormData["name"]);
     formData.append("description", initialFormData["description"]);
     formData.append("icon", initialFormData["icon"]);
     formData.append("color", initialFormData["color"]);
     formData.append("workspaceSlug", workspaceSlug);
+    formData.append("projectId", projectIdForm);
 
-    await projectFetcher.submit(formData, {
-      method: "POST",
-      action: "/api/projects/create",
-    });
-
+    if (newProject) {
+      await projectFetcher.submit(formData, {
+        method: "POST",
+        action: "/api/projects/create",
+      });
+    } else {
+      console.log("Editing the note");
+      const result = await projectFetcher.submit(formData, {
+        method: "POST",
+        action: "/api/projects/edit",
+      });
+      console.log("this is the result", result);
+    }
     setDialogOpen(false);
   };
 
@@ -252,10 +280,11 @@ const ProjectDialog = ({
                   // setSelectedIcon(emoji.native);
                   handleUpdateFormData("icon", emoji.native);
                 }}
+                defaultIcon={originalData.icon}
               />
               <Input
                 type="text"
-                placeholder=""
+                defaultValue={originalData.name}
                 name="name"
                 className="w-full"
                 autoComplete="off"
@@ -270,7 +299,7 @@ const ProjectDialog = ({
             <Label>Description</Label>
             <Input
               type="text"
-              placeholder=""
+              defaultValue={originalData.description}
               name="description"
               className=""
               autoComplete="off"
@@ -316,7 +345,7 @@ const ProjectDialog = ({
             //   backgroundColor: isDark ? palette[selected].mainDark : "black",
             // }}
           >
-            Create
+            {newProject ? "Create" : "Save"}
           </Button>
         </div>
       </DialogContent>

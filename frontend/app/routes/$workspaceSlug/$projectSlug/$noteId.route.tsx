@@ -14,6 +14,7 @@ import { useOutletContext } from "@remix-run/react";
 import type { Project } from "~/types/projects";
 import { Button } from "~/components/ui/button";
 import { TrashIcon } from "lucide-react";
+import { useParams, useNavigation } from "@remix-run/react";
 
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -42,6 +43,13 @@ export default function NoteEditor() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    // This will trigger a re-render when the URL params change
+    console.log("Note ID changed:", params.noteId);
+  }, [params.noteId]);
 
   const noteFetcher = useFetcher();
 

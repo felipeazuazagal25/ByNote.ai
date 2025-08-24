@@ -19,7 +19,7 @@ export default function ProjectLayout() {
 
   return (
     <Card className="w-full mr-5">
-      <Outlet context={{ project }} />
+      <Outlet context={{ project }} key={params.noteId} />
     </Card>
   );
 }

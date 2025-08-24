@@ -33,7 +33,12 @@ export const ProjectNotes = ({
 
   return (
     <>
-      <Accordion type="single" collapsible className="w-full mt-2">
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full mt-2 px-2 rounded-"
+        draggable
+      >
         <AccordionItem value={`project-${project.id}`}>
           <AccordionTrigger className="py-1 min-w-0">
             <div className="flex items-center gap-x-2 flex-1 min-w-0 pr-1">
