@@ -18,13 +18,11 @@ export const getWorkspaceBySlug = async (
   request: Request,
   workspaceSlug: string
 ) => {
-  const response = await authFetch(
-    request,
-    `/workspaces/slug/${workspaceSlug}`,
-    {
-      method: "GET",
-    }
-  );
+  const requestUrl = `/workspaces/slug/${workspaceSlug}`;
+  console.log("this is the request url", requestUrl);
+  const response = await authFetch(request, requestUrl, {
+    method: "GET",
+  });
 
   if (!response.ok) {
     throw new Error("No workspace with the requested slug.");

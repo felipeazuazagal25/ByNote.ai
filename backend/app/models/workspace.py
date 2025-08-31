@@ -60,11 +60,11 @@ class Workspace(Base):
     
     def get_topNNotes(self, n: int = 5) -> List["Note"]:
         all_notes = []
-        print(f"Workspace {self.name} has {len(self.projects)} projects")
+        # print(f"Workspace {self.name} has {len(self.projects)} projects")
         for project in self.projects:
-            print(project.notes)
+            # print(project.notes)
             all_notes.extend(project.notes)
-        print(f"Total notes found: {len(all_notes)}")
+        # print(f"Total notes found: {len(all_notes)}")
         return all_notes[:n]
 
     def __repr__(self) -> str:

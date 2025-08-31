@@ -16,7 +16,10 @@ const DEBUG = process.env.NODE_ENV === "development";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaces = await getWorkspaces(request);
-  const { workspaceSlug, projectSlug } = params; // Get the strings of parameters
+  console.log("these are the params", params);
+  const workspaceSlug = params.workspaceSlug || "";
+  console.log("THIS IS THE CURRENT WORKSPACE SLUG", workspaceSlug);
+  const projectSlug = params.projectSlug || "";
   // console.log("This is projectSlug", projectSlug);
   const { pathname, searchParams } = new URL(request.url);
 
@@ -76,6 +79,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     } catch (error) {
       console.log(error);
       const workspace = await getWorkspace(request, defaultWorkspaceId);
+      console.log("REDIRECTING TO THE USER TO THE DEFAULT WORKSPACE ID");
       return redirect(`/${workspace.slug}`);
     }
   } else {

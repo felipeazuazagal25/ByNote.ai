@@ -72,7 +72,6 @@ async def get_workspaces(db: AsyncSession, user: User):
         raise HTTPException(status_code=500,detail=str(e))
 
 async def get_workspace_by_slug(workspace_slug:str,db: AsyncSession, user: User):
-    logger.info(msg="initiaing getting workspace by slug")
     try:
         query = select(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_slug, Workspace.is_deleted == False)
         response = await db.execute(query)
@@ -93,10 +92,8 @@ async def get_workspace_by_slug(workspace_slug:str,db: AsyncSession, user: User)
             db_workspace.topNNotes = [n for n in notes]
         except Exception as e:
             logger.error(f"Error getting top notes: {str(e)}, {type(e)}")
-            logger.exception("Full traceback:")
             db_workspace.topNNotes = []
 
-        sys.stdout.flush()
         return db_workspace
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))

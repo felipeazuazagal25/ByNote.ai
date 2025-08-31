@@ -15,9 +15,11 @@ import {
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Ellipsis } from "lucide-react";
-import { ProjectDialog } from "~/components/sidebar/Sidebar";
+import {
+  ProjectDialog,
+  ProjectDialogType,
+} from "~/components/projects/projectDialog";
 import { useState } from "react";
-import { ProjectCreationDialog } from "~/components/sidebar/Sidebar";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaceSlug = params.workspaceSlug || "personal"; // Default
@@ -29,24 +31,26 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 const Projects = () => {
   const { workspaceSlug, projects } = useLoaderData<typeof loader>();
   const [projectDialogOpen, setProjectDialogOpen] = useState(false);
-  const [dataProjectDialog, setDataProjectDialog] =
-    useState<ProjectCreationDialog>({
+  const [dataProjectDialog, setDataProjectDialog] = useState<ProjectDialogType>(
+    {
       name: "",
       description: "",
       icon: "📚",
       color: "bw",
-    });
+    }
+  );
   const [projectId, setProjectId] = useState("");
-  useEffect(() => {
-    console.log(dataProjectDialog);
-  }, [dataProjectDialog]);
+  const [project, setProject] = useState<Project | undefined>(undefined);
+  // useEffect(() => {
+  //   console.log(dataProjectDialog);
+  // }, [dataProjectDialog]);
 
   return (
     <div className="w-full flex flex-col gap-y-2 mr-5 rounded-md py-4">
       <h1 className="text-xl font-bold font-serif px-4">Projects</h1>
       <Separator className="py-0 my-0" />
       <div className="w-full flex-1 min-w-0 relative flex flex-col">
-        <div className="absolute inset-0 overflow-auto">
+        <div className="absolute inset-0 overflow-auto flex flex-col gap-y-2">
           {projects
             .sort((a: Project, b: Project) => {
               return (
@@ -71,6 +75,7 @@ const Projects = () => {
                         <Button
                           variant="ghost"
                           onClick={() => {
+                            setProject(project);
                             setDataProjectDialog({
                               name: project.name,
                               description: project.description,
@@ -103,6 +108,8 @@ const Projects = () => {
         setDialogOpen={setProjectDialogOpen}
         originalData={dataProjectDialog}
         projectId={projectId}
+        projects={projects}
+        project={project}
       />
     </div>
   );

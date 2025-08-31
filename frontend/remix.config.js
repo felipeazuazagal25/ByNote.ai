@@ -5,7 +5,7 @@ module.exports = {
   future: {
     /* any enabled future flags */
   },
-  ignoredRouteFiles: ["**/*.css"],
+  ignoredRouteFiles: ["**/.*", "**/.well-known/**"],
   publicPath: "/build/",
   routes(defineRoutes) {
     return defineRoutes((route) => {

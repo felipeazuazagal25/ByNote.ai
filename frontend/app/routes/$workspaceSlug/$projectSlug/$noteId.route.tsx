@@ -46,6 +46,12 @@ export default function NoteEditor() {
   const params = useParams();
   const navigation = useNavigation();
 
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   useEffect(() => {
     // This will trigger a re-render when the URL params change
     console.log("Note ID changed:", params.noteId);
@@ -60,7 +66,7 @@ export default function NoteEditor() {
     autofocus: "end",
     editorProps: {
       attributes: {
-        class: "h-full outline-none",
+        class: "h-full outline-none w-full mt-4 ",
         style: "box-sizing: border-box;",
         tabindex: "10",
       },
@@ -132,7 +138,7 @@ export default function NoteEditor() {
           <input
             tabIndex={10}
             value={title}
-            className="w-full focus:outline-none bg-white dark:bg-black"
+            className="w-full focus:outline-none bg-white dark:bg-transparent"
             onChange={(e) => {
               const newTitle = e.target.value;
               const newNote = { ...note, title: title };
@@ -166,12 +172,21 @@ export default function NoteEditor() {
       <Separator />
 
       {/* scrollable wrapper: flex-1 + min-h-0 is the key */}
-      <div className="flex-1 min-h-0 relative">
+      <motion.div
+        key={`${note.id}-editor`}
+        className="flex-1 min-h-0 relative"
+        initial={{ opacity: !hasMounted ? 1 : 0 }}
+        animate={{ opacity: 1 }}
+        transition={{
+          duration: 0.15,
+          ease: "easeInOut",
+        }}
+      >
         <EditorContent
           editor={editor}
-          className="absolute inset-0 overflow-auto p-4 focus:outline-none"
+          className="absolute inset-0 overflow-auto focus:outline-none"
         />
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

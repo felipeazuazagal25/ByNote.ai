@@ -27,6 +27,10 @@ class Project(Base):
     def slug(self) -> str:
         return self._slug
     
+    def update_slug(self,new_base:str) -> None:
+        self._slug = slugify(new_base)
+        return None
+        
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if 'name' in kwargs:

@@ -118,13 +118,44 @@ export const editProject = async (
 export const deleteProject = async (
   request: Request,
   projectId: string,
-  workspaceSlug: string
+  moveNotes: string,
+  destinationProjectId: string,
+  workspaceSlug?: string
 ) => {
-  const requestUrl = `/projects/${projectId}`;
-
+  const params = new URLSearchParams({
+    move_notes: moveNotes,
+    destination_project_id: destinationProjectId,
+  });
+  const requestUrl = `/projects/${projectId}?${params.toString()}`;
+  console.log("this is the request URL", requestUrl);
   const response = await authFetch(request, requestUrl, {
     method: "DELETE",
   });
 
-  return response;
+  console.log("the response was not ok", response);
+  if (response.status !== 204) {
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        message: "Error deleting the project.",
+      })
+    );
+  }
+
+  return new Response(
+    JSON.stringify({
+      ok: true,
+      message: "Project deleted succesfully.",
+    }),
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+};
+
+export type deleteProjectResponseType = {
+  ok: boolean;
+  message: string;
 };

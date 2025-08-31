@@ -5,11 +5,13 @@ from app.projects.schemas import ProjectCreate, ProjectUpdate, ProjectOut
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from app.models import User
-from sqlalchemy import select
+from sqlalchemy import select, update
 import uuid
 from app.workspaces.service import get_workspace_by_slug
 from app.models.workspace import Workspace
 from datetime import datetime
+
+from app.models import Note
 
 
 async def create_project(project: ProjectCreate, workspace_slug: str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
@@ -60,14 +62,17 @@ async def update_project(project_id: uuid.UUID, project: ProjectUpdate, db: Asyn
         setattr(db_project, field, value)
 
     db_project.updated_at = datetime.now()
+    db_project.update_slug(project.name)
 
     db.add(db_project)
     await db.commit()
     await db.refresh(db_project)
     return db_project
 
-async def delete_project(project_id: uuid.UUID, db: AsyncSession, user: User):
-    query = select(Project).where(Project.id == project_id, Project.user_id == user.id)
+async def delete_project(project_id: uuid.UUID, move_notes:bool, destination_project_id:str, db: AsyncSession, user: User):
+    query = (select(Project)
+             .join(Workspace, Project.workspace_id == Workspace.id)
+             .where(Project.id == project_id, Workspace.user_id == user.id))
     response = await db.execute(query)
     db_project = response.scalar_one_or_none()
     if db_project is None:
@@ -75,6 +80,26 @@ async def delete_project(project_id: uuid.UUID, db: AsyncSession, user: User):
     if db_project.slug == "inbox":
         raise HTTPException(status_code=400, detail="Inbox project cannot be deleted")
     
+    # Move the notes to another project
+    if move_notes:
+        # Validate destination project exists
+        dest_query = (select(Project)
+                      .join(Workspace, Project.workspace_id == Workspace.id)
+                      .where(Project.id == destination_project_id, Workspace.user_id == user.id))
+        dest_response = await db.execute(dest_query)
+        dest_project = dest_response.scalar_one_or_none()
+        if dest_project is None:
+            raise HTTPException(status_code=404, detail="Destination project not found")
+
+        # Get and update all notes
+        await db.execute(update(Note)
+                         .where(Note.project_id == project_id)
+                         .values(project_id=destination_project_id))
+        await db.commit()
+    
+    # Refresh project to avoid cascade note deletion
+    await db.refresh(db_project, attribute_names=["notes"])
+    # Delete the project
     await db.delete(db_project)
     await db.commit()
     return {"message": "Project deleted successfully"}

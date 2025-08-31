@@ -39,6 +39,6 @@ async def update_project_route(project_id: uuid.UUID, project: ProjectUpdate, db
     return db_project
 
 @router.delete('/{project_id}', status_code = 204)
-async def delete_project_route(project_id: uuid.UUID, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
-    await delete_project(project_id, db, user)
+async def delete_project_route(project_id: uuid.UUID, move_notes:bool, destination_project_id:str, db: AsyncSession = Depends(get_db), user: User = Depends(current_active_user)):
+    await delete_project(project_id,move_notes,destination_project_id, db, user)
     return {"message": "Project deleted successfully"}

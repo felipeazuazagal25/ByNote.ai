@@ -4,6 +4,7 @@ import { getProjectBySlug } from "~/api/projects";
 import { getWorkspaceBySlug } from "~/api/workspaces";
 import { Card } from "~/components/ui/card";
 import { useParams } from "@remix-run/react";
+import { motion } from "framer-motion";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaceSlug = params.workspaceSlug as string;

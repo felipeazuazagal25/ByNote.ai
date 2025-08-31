@@ -9,8 +9,11 @@ import type { LinksFunction } from "@remix-run/node";
 // import { dataContext } from "~/context/dataContext.server";
 
 import "./tailwind.css";
+import "./styles/sonner.css";
 import { useState, useEffect } from "react";
 import { useUIState } from "./hooks/useUIState";
+
+import { Toaster } from "~/components/ui/sonner";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -74,6 +77,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {theme === "light" ? "🌙" : "☀️"}
           </button>
         </div>
+        <Toaster position="top-center" richColors />
         <ScrollRestoration />
         <Scripts />
       </body>

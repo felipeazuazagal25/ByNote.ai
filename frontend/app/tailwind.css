@@ -135,3 +135,25 @@ body,
   border-color: var(--border-dark) !important;
   /* background-color: var(--background-project-color-light) !important; */
 }
+
+.tiptap {
+  p {
+    @apply my-4 first:mt-0 last:mb-0 text-base leading-relaxed;
+  }
+
+  h1 {
+    @apply text-3xl font-bold mt-8 mb-4 first:mt-0 last:mb-0;
+  }
+
+  h2 {
+    @apply text-2xl font-bold mt-8 mb-4 first:mt-0 last:mb-0;
+  }
+
+  h3 {
+    @apply text-xl font-bold mt-8 mb-4 first:mt-0 last:mb-0;
+  }
+
+  h4 {
+    @apply text-lg font-bold mt-8 mb-4 first:mt-0 last:mb-0;
+  }
+}

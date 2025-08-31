@@ -3,35 +3,18 @@ import { Link, useFetcher, useParams } from "@remix-run/react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
 } from "~/components/ui/card";
-import { ProjectGroup, NoteGroup } from "~/components/sidebar/ObjectGroup";
 import ButtonWithShortcut from "~/components/ui/button-shortchut";
 import { CreateNoteShortcuts, CreateProjectShortcuts } from "~/utils/shortcuts";
-import { FolderClosed, StickyNote } from "lucide-react";
 import { buttonVariants } from "../ui/button";
 import { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogHeader,
-} from "../ui/dialog";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { palette, PaletteKey } from "~/lib/colorList";
-
-import { EmojiPickerPopover } from "./EmojiPicker";
-import { useDarkMode } from "~/hooks/useDarkMode";
-
-import { Form } from "@remix-run/react";
 
 import { ProjectNotes } from "./ProjectNotes";
 import type { Project } from "~/types/projects";
+
+import { ProjectDialog } from "../projects/projectDialog";
 
 const AppSidebar = ({
   open = true,
@@ -168,6 +151,7 @@ const AppSidebar = ({
       <ProjectDialog
         dialogOpen={projectDialogOpen}
         setDialogOpen={setProjectDialogOpen}
+        projects={projects}
         originalData={{
           name: "",
           description: "",
@@ -181,174 +165,3 @@ const AppSidebar = ({
 };
 
 export default AppSidebar;
-
-export type ProjectCreationDialog = {
-  name: string;
-  description: string;
-  icon: string;
-  color: PaletteKey;
-};
-
-export const ProjectDialog = ({
-  dialogOpen,
-  setDialogOpen,
-  originalData,
-  newProject,
-  projectId,
-}: {
-  dialogOpen: boolean;
-  setDialogOpen: (value: boolean) => void;
-  originalData: ProjectCreationDialog;
-  newProject?: boolean;
-  projectId?: string;
-}) => {
-  const params = useParams();
-  const workspaceSlug = params.workspaceSlug || "";
-  const projectFetcher = useFetcher();
-  const isDark = useDarkMode();
-  const colors: PaletteKey[] = Object.keys(palette) as PaletteKey[];
-  const [iconModalOpen, setIconModalOpen] = useState(false);
-
-  // Form info a helper functions
-  const [initialFormData, setInitialFormData] =
-    useState<ProjectCreationDialog>(originalData);
-
-  const handleUpdateFormData = (item: string, value: any) => {
-    const newInitialFormData = { ...initialFormData, [item]: value };
-    setInitialFormData(newInitialFormData);
-  };
-
-  const handleButtonClick = async () => {
-    console.log("this is the formData", initialFormData);
-    const formData = new FormData();
-    const projectIdForm = projectId || "";
-    formData.append("name", initialFormData["name"]);
-    formData.append("description", initialFormData["description"]);
-    formData.append("icon", initialFormData["icon"]);
-    formData.append("color", initialFormData["color"]);
-    formData.append("workspaceSlug", workspaceSlug);
-    formData.append("projectId", projectIdForm);
-
-    if (newProject) {
-      await projectFetcher.submit(formData, {
-        method: "POST",
-        action: "/api/projects/create",
-      });
-    } else {
-      console.log("Editing the note");
-      const result = await projectFetcher.submit(formData, {
-        method: "POST",
-        action: "/api/projects/edit",
-      });
-      console.log("this is the result", result);
-    }
-    setDialogOpen(false);
-  };
-
-  return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogContent
-        // style={{
-        //   backgroundColor: isDark ? "" : palette[selected].backgroundLight,
-        // }}
-        onPointerDownOutside={(e) => {
-          if (iconModalOpen) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }}
-        onEscapeKeyDown={(e) => {
-          if (iconModalOpen) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>Give it your style!</DialogDescription>
-        </DialogHeader>
-        <div className="w-full flex flex-col gap-y-4">
-          <div>
-            <Label>Name</Label>
-            <div className="flex">
-              <EmojiPickerPopover
-                isOpen={iconModalOpen}
-                setIsOpen={setIconModalOpen}
-                onEmojiSelect={(emoji) => {
-                  setIconModalOpen(false);
-                  // setSelectedIcon(emoji.native);
-                  handleUpdateFormData("icon", emoji.native);
-                }}
-                defaultIcon={originalData.icon}
-              />
-              <Input
-                type="text"
-                defaultValue={originalData.name}
-                name="name"
-                className="w-full"
-                autoComplete="off"
-                onChange={(e) => {
-                  const text = e.target.value;
-                  handleUpdateFormData("name", text);
-                }}
-              />
-            </div>
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Input
-              type="text"
-              defaultValue={originalData.description}
-              name="description"
-              className=""
-              autoComplete="off"
-              onChange={(e) => {
-                const text = e.target.value;
-                handleUpdateFormData("description", text);
-              }}
-            />
-          </div>
-          <div>
-            <Label>Color</Label>
-            <div className="flex gap-3 mt-2">
-              {colors.map((name) => (
-                <motion.button
-                  key={name}
-                  type="button"
-                  onClick={() => handleUpdateFormData("color", name)}
-                  // ${selected === name &&"outline outline-gray-300  dark:outline-gray-800"}
-                  className={`w-6 h-6`}
-                  initial={false}
-                  animate={{
-                    borderRadius:
-                      initialFormData["color"] === name ? "6px" : "18px",
-                  }}
-                  transition={{
-                    duration: 0.15,
-                    ease: "easeInOut",
-                  }}
-                  style={{
-                    backgroundColor: isDark
-                      ? palette[name].mainDark
-                      : palette[name].mainLight,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-end">
-          <Button
-            onClick={handleButtonClick}
-            // style={{
-            //   backgroundColor: isDark ? palette[selected].mainDark : "black",
-            // }}
-          >
-            {newProject ? "Create" : "Save"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
