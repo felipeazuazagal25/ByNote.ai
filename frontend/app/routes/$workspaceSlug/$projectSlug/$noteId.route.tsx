@@ -9,15 +9,31 @@ import { getNote } from "~/api/notes";
 import { motion } from "framer-motion";
 import { Note } from "~/types/notes";
 import { Separator } from "~/components/ui/separator";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import { useOutletContext } from "@remix-run/react";
 import type { Project } from "~/types/projects";
 import { Button } from "~/components/ui/button";
 import { TrashIcon } from "lucide-react";
 import { useParams, useNavigation } from "@remix-run/react";
 
-import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
+// TIPTAP EDITOR
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { TextStyleKit } from "@tiptap/extension-text-style";
+import Typography from "@tiptap/extension-typography";
+import Highlight from "@tiptap/extension-highlight";
+import { ListButton } from "~/components/tiptap-ui/list-button";
+
+// TipTap Extensions -- External
+import Document from "@tiptap/extension-document";
+import { ListKit } from "@tiptap/extension-list";
+import { TaskItem, TaskList } from "@tiptap/extension-list";
+import Paragraph from "@tiptap/extension-paragraph";
+import Text from "@tiptap/extension-text";
+
+// Tiptap Extensions -- Internal
+import SlashCommand from "~/components/editor/extensions/slashCommand";
+import ListExitOnEmpty from "~/components/editor/extensions/listExitOnEmpty";
 // import { SimpleEditor } from "~/components/tiptap-templates/simple/simple-editor";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -34,44 +50,47 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 };
 
 export default function NoteEditor() {
+  // -------------------- INITIAL VARIABLES --------------------
   const { initialNote, projectSlug, workspaceSlug } =
     useLoaderData<typeof loader>();
   // const { project } = useOutletContext<{ project: Project }>();
-  const [title, setTitle] = useState(initialNote.title);
-  const [content, setContent] = useState(initialNote.rich_content);
-  const [note, setNote] = useState(initialNote);
-  const [open, setOpen] = useState(false);
+
+  // -------------------- GENERAL VARIABLES --------------------
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
   const navigation = useNavigation();
 
+  // -------------------- CONTENT / UI STATE VARIABLES --------------------
+  const [title, setTitle] = useState(initialNote.title);
+  const [content, setContent] = useState(initialNote.rich_content);
+  const [note, setNote] = useState(initialNote);
+  const [open, setOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  useEffect(() => {
-    // This will trigger a re-render when the URL params change
-    console.log("Note ID changed:", params.noteId);
-  }, [params.noteId]);
-
-  const noteFetcher = useFetcher();
-
+  // -------------------- TIPTAP EDITOR --------------------
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Document,
+      Paragraph,
+      Text,
+      ListKit,
+      SlashCommand,
+      ListExitOnEmpty,
+    ],
     content: initialNote.rich_content,
     immediatelyRender: false,
     autofocus: "end",
     editorProps: {
       attributes: {
-        class: "h-full outline-none w-full mt-4 ",
+        class: "h-full outline-none w-full prose",
         style: "box-sizing: border-box;",
         tabindex: "10",
       },
     },
     onUpdate: ({ editor }: { editor: any }) => {
+      // console.log(editor.getHTML());
       const newContent = editor.getJSON();
       const newTextContent = editor.getText();
       const newNote = {
@@ -85,7 +104,18 @@ export default function NoteEditor() {
   });
 
   useEffect(() => {
-    console.log("new retrigger");
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // This will trigger a re-render when the URL params change
+    // console.log("Note ID changed:", params.noteId);
+  }, [params.noteId]);
+
+  const noteFetcher = useFetcher();
+
+  useEffect(() => {
+    // console.log("new retrigger");
     const updateNote = setTimeout(async () => {
       const { tags, slug, urlString, updated_at, created_at, ...newNote } = {
         ...note,
@@ -96,19 +126,19 @@ export default function NoteEditor() {
       if (!editor?.getJSON()) {
         return;
       }
-      console.log("this is the new note to edit", newNote);
+      // console.log("this is the new note to edit", newNote);
       await noteFetcher.submit(newNote, {
         method: "put",
         action: `/api/notes/edit`,
       });
-      console.log("note updated");
+      // console.log("note updated");
     }, 500);
     return () => clearTimeout(updateNote);
   }, [content, title]);
 
   const handleDelete = () => {
     const formData = { redirectLink: `/${workspaceSlug}/${projectSlug}` };
-    console.log("initiaing the delete process", formData);
+    // console.log("initiaing the delete process", formData);
     return noteFetcher.submit(formData, {
       method: "delete",
       action: `/api/notes/delete/${note.id}`,
@@ -169,9 +199,10 @@ export default function NoteEditor() {
         </div>
       </motion.div>
 
-      <Separator />
+      <Separator className="mb-4" />
 
       {/* scrollable wrapper: flex-1 + min-h-0 is the key */}
+
       <motion.div
         key={`${note.id}-editor`}
         className="flex-1 min-h-0 relative"
