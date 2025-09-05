@@ -5,17 +5,18 @@ import Suggestion, { SuggestionOptions } from "@tiptap/suggestion";
 import { ReactRenderer } from "@tiptap/react";
 import tippy, { Instance as TippyInstance } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { combineArrays } from "~/utils/arrays";
 import { headings } from "./slashCommandOptions/headings";
 import { lists } from "./slashCommandOptions/lists";
 import { elements } from "./slashCommandOptions/elements";
+import { combineArrays } from "./utils/combineArrays";
 
-interface CommandItem {
+export interface CommandItem {
   title: string;
   command: (props: { editor: any; range: any; update: any }) => void;
+  index?: number;
 }
 
-interface CommandListItem {
+export interface CommandListItem {
   categoryTitle: string;
   options: CommandItem[];
 }
@@ -33,26 +34,35 @@ const CommandList = forwardRef<
 >(({ items, command }, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // const selectItem = (index: number) => {
-  //   const item = items[index];
-  //   if (item) {
-  //     command(item);
-  //   }
-  // };
+  const selectItem = (index: number) => {
+    const item: CommandItem =
+      items
+        .flatMap((category) => category.options)
+        .find((item) => {
+          return item.index === index;
+        }) || items[0].options[0];
+    if (item) {
+      command(item);
+    }
+  };
 
   // Expose key handling to parent
   useImperativeHandle(ref, () => ({
     onKeyDown: (event: KeyboardEvent) => {
+      const totalListItems = items.flatMap(
+        (category) => category.options
+      ).length;
+
       if (event.key === "ArrowDown") {
-        setSelectedIndex((selectedIndex + 1) % items.length);
+        setSelectedIndex((selectedIndex + 1) % totalListItems);
         return true;
       }
       if (event.key === "ArrowUp") {
-        setSelectedIndex((selectedIndex - 1 + items.length) % items.length);
+        setSelectedIndex((selectedIndex - 1 + totalListItems) % totalListItems);
         return true;
       }
       if (event.key === "Enter") {
-        // selectItem(selectedIndex);
+        selectItem(selectedIndex);
         return true;
       }
       return false;
@@ -60,22 +70,25 @@ const CommandList = forwardRef<
   }));
 
   return (
-    <div className="bg-white dark:bg-black border rounded shadow-md py-1 px-1 min-w-36">
+    <div className="bg-white dark:bg-black border rounded shadow-md py-1 px-1 min-w-40">
       {items.length ? (
-        items.map((item) => (
+        items.map((item, index) => (
           <>
-            <div className="text-gray-400 dark:text-gray-500 p-1 font-bold ">
+            <div
+              className="text-gray-400 dark:text-gray-500 p-1 font-bold"
+              key={index}
+            >
               {item.categoryTitle}
             </div>
-            {item.options.map((item, index) => (
+            {item.options.map((item) => (
               <button
-                key={index}
+                key={item.index}
                 className={`text-black dark:text-white  text-sm block w-full text-left px-3 py-1 rounded ${
-                  index === selectedIndex
+                  item.index === selectedIndex
                     ? "bg-gray-200 dark:bg-gray-800"
                     : "hover:bg-gray-100 dark:hover:bg-gray-900"
                 }`}
-                // onClick={() => selectItem(index)}
+                onClick={() => selectItem(item.index || 0)}
               >
                 {item.title}
               </button>
@@ -100,26 +113,12 @@ const SlashCommand = Extension.create({
           props.command({ editor, range });
         },
         items: ({ query }: { query: string }) => {
-          const commandOptions: CommandListItem[] = [
-            {
-              ...headings,
-              options: headings.options.filter((item: any) =>
-                item.title.toLowerCase().includes(query.toLowerCase())
-              ),
-            },
-            {
-              ...lists,
-              options: lists.options.filter((item: any) =>
-                item.title.toLowerCase().includes(query.toLowerCase())
-              ),
-            },
-            {
-              ...elements,
-              options: elements.options.filter((item: any) =>
-                item.title.toLowerCase().includes(query.toLowerCase())
-              ),
-            },
-          ];
+          const commandOptions = combineArrays(query, [
+            headings,
+            lists,
+            elements,
+          ]);
+          // console.log("this is command options", commandOptions);
 
           return commandOptions;
         },

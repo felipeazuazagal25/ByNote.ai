@@ -30,11 +30,16 @@ import { ListKit } from "@tiptap/extension-list";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import Paragraph from "@tiptap/extension-paragraph";
 import Text from "@tiptap/extension-text";
+import {
+  Details,
+  DetailsContent,
+  DetailsSummary,
+} from "@tiptap/extension-details";
+import { Placeholder } from "@tiptap/extensions";
 
 // Tiptap Extensions -- Internal
 import SlashCommand from "~/components/editor/extensions/slashCommand";
 import ListExitOnEmpty from "~/components/editor/extensions/listExitOnEmpty";
-// import { SimpleEditor } from "~/components/tiptap-templates/simple/simple-editor";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaceSlug = params.workspaceSlug as string;
@@ -75,9 +80,33 @@ export default function NoteEditor() {
       Document,
       Paragraph,
       Text,
+      // List Related Extensions
       ListKit,
-      SlashCommand,
-      ListExitOnEmpty,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
+      // ListExitOnEmpty, // custom
+      SlashCommand, // custom
+
+      // Expandable lists
+      Details.configure({
+        persist: true,
+        HTMLAttributes: {
+          class: "details",
+        },
+      }),
+      DetailsSummary,
+      DetailsContent,
+      Placeholder.configure({
+        includeChildren: true,
+        placeholder: ({ node }) => {
+          if (node.type.name === "detailsSummary") {
+            return "Summary";
+          }
+          return "";
+        },
+      }),
     ],
     content: initialNote.rich_content,
     immediatelyRender: false,
@@ -90,7 +119,7 @@ export default function NoteEditor() {
       },
     },
     onUpdate: ({ editor }: { editor: any }) => {
-      // console.log(editor.getHTML());
+      console.log(editor.getHTML());
       const newContent = editor.getJSON();
       const newTextContent = editor.getText();
       const newNote = {

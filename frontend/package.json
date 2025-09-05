@@ -30,6 +30,7 @@
     "@remix-run/react": "^2.16.2",
     "@remix-run/serve": "^2.16.2",
     "@tabler/icons-react": "^3.34.0",
+    "@tiptap/extension-details": "^3.4.1",
     "@tiptap/extension-highlight": "^3.2.0",
     "@tiptap/extension-horizontal-rule": "^3.2.0",
     "@tiptap/extension-image": "^3.2.0",

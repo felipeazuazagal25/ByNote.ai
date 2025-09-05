@@ -22,8 +22,8 @@ const ListExitOnEmpty = Extension.create({
         const parentNodePosition = Math.max(selection.$head.pos - 1, 0);
         const parentNode = doc.resolve(parentNodePosition).node();
 
-        console.log("this is the parent node", parentNode);
-        console.log("this is the parent", container);
+        // console.log("this is the parent node", parentNode);
+        // console.log("this is the parent", container);
         // check if current node is an empty list item
         if (
           parentNode.type.name === "listItem" &&

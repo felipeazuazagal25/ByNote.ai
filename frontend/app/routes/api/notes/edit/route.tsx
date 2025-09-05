@@ -12,7 +12,7 @@ export const action = async ({ request }: { request: Request }) => {
   const is_shared = (formData.get("is_shared") || false) as boolean;
   const is_starred = (formData.get("is_starred") || false) as boolean;
   const is_pinned = (formData.get("is_pinned") || false) as boolean;
-  console.log("this is rich_content", rich_content);
+  // console.log("this is rich_content", rich_content);
 
   const result = await editNote(
     request,

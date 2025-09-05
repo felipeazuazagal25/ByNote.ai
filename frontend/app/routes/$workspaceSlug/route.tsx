@@ -16,7 +16,7 @@ const DEBUG = process.env.NODE_ENV === "development";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const workspaces = await getWorkspaces(request);
-  console.log("these are the params", params);
+  // console.log("these are the params", params);
   const workspaceSlug = params.workspaceSlug || "";
   console.log("THIS IS THE CURRENT WORKSPACE SLUG", workspaceSlug);
   const projectSlug = params.projectSlug || "";
