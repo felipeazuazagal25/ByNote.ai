@@ -1,4 +1,10 @@
-import { forwardRef, useState, useEffect, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  useState,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 
 import { Extension } from "@tiptap/core";
 import Suggestion, { SuggestionOptions } from "@tiptap/suggestion";
@@ -69,8 +75,19 @@ const CommandList = forwardRef<
     },
   }));
 
+  const selectedRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (selectedRef.current) {
+      selectedRef.current.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth", // or "auto" if you don’t want animation
+      });
+    }
+  }, [selectedIndex]);
+
   return (
-    <div className="bg-white dark:bg-black border rounded shadow-md py-1 px-1 min-w-40">
+    <div className="bg-white dark:bg-dark-bg border rounded shadow-md py-1 px-1 w-60 h-72 overflow-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
       {items.length ? (
         items.map((item, index) => (
           <>
@@ -83,7 +100,8 @@ const CommandList = forwardRef<
             {item.options.map((item) => (
               <button
                 key={item.index}
-                className={`text-black dark:text-white  text-sm block w-full text-left px-3 py-1 rounded ${
+                ref={item.index === selectedIndex ? selectedRef : null}
+                className={`text-black dark:text-dark-text text-sm block w-full text-left px-3 py-1 rounded ${
                   item.index === selectedIndex
                     ? "bg-gray-200 dark:bg-gray-800"
                     : "hover:bg-gray-100 dark:hover:bg-gray-900"

@@ -76,7 +76,7 @@ const AppSidebar = ({
           ease: "easeInOut",
         }}
       >
-        <Card className="flex-1 w-full flex flex-col text-nowrap bg-white dark:bg-black h-full min-h-0 relative">
+        <Card className="flex-1 w-full flex flex-col text-nowrap bg-white dark:bg-dark-bg h-full min-h-0 relative">
           <CardHeader>
             <div className="flex flex-col gap-2">
               <ButtonWithShortcut

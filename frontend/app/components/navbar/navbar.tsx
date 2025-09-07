@@ -22,7 +22,7 @@ const Navbar = ({
 }) => {
   return (
     <div className="w-full py-2 px-5 z-10">
-      <Card className="h-16 w-full flex justify-between items-center my-auto px-2 gap-x-2">
+      <Card className="h-16 w-full flex justify-between items-center my-auto px-2 gap-x-2 dark:bg-dark-bg">
         {/* First section */}
         <div className="flex items-center gap-x-2">
           <Button

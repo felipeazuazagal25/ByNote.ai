@@ -98,7 +98,7 @@ const Layout = () => {
   const { loadDefaultApp, workspace, workspaces, userInfo, projects } =
     useLoaderData<typeof loader>();
   return (
-    <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 flex flex-col h-screen">
+    <div className="min-h-screen w-full bg-gray-100 dark:bg-slate-950 flex flex-col h-screen">
       <Navbar
         workspace={workspace}
         workspaces={workspaces}

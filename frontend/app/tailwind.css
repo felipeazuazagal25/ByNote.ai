@@ -7,7 +7,7 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-white dark:bg-gray-800;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
@@ -58,14 +58,14 @@ body,
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 220 13% 91%;
+    --card: 222.2 47.4% 11.2%; /* dark-bg */
+    --card-foreground: 220 13% 91%; /* dark-text */
+    --popover: 222.2 47.4% 11.2%; /* dark-bg */
+    --popover-foreground: 220 13% 91%; /* dark-text */
+    --primary: 220 13% 97%; /* dark-text */
+    --primary-foreground: 222.2 47.4% 11.2%; /* dark-bg */
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
     --muted: 215 27.9% 16.9%;
@@ -136,6 +136,7 @@ body,
   /* background-color: var(--background-project-color-light) !important; */
 }
 
+/* ---------------------- TipTap Editor ---------------------- */
 .tiptap {
   :first-child {
     margin-top: 0;
@@ -159,24 +160,41 @@ body,
   }
 
   /* Unordered List Styles */
+  ol {
+    list-style-type: decimal;
+    margin-left: 0.6rem;
+    /* @apply flex */
+    /* padding-left: 0.25rem; */
+  }
+  ol li {
+    @apply pl-[0.35rem];
+  }
+
+  ol ol {
+    list-style-type: lower-latin;
+  }
+
+  ol ol ol {
+    list-style-type: lower-roman;
+  }
+
+  /* Unordered List Styles */
   ul {
     list-style-type: disc;
-    padding-left: 1.5rem; /* or whatever looks good */
+    margin-left: 0.6rem;
+    /* @apply flex */
+    /* padding-left: 0.25rem; */
+  }
+  ul li {
+    @apply pl-[0.35rem];
   }
 
   ul ul {
-    list-style-type: circle; /* Different bullet style */
-    @apply my-0 py-0;
+    list-style-type: circle;
   }
 
   ul ul ul {
-    list-style-type: square; /* Another different bullet style */
-    @apply my-0 py-0;
-  }
-
-  ol {
-    list-style-type: decimal;
-    padding-left: 1.5rem;
+    list-style-type: square;
   }
 
   /* ------------------ Heading styles ------------------ */
@@ -294,30 +312,37 @@ body,
   /* -------------------- Details -------------------- */
   .details {
     display: flex;
-    gap: 0.25rem;
-    margin: 1.5rem 0;
-    border: 1px solid;
-    @apply border-gray-200 dark:border-gray-800;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
+    display: flex;
+    align-items: flex-start; /* aligns the toggle with text */
     list-style-type: none;
-    @apply transition-all duration-300 ease-in-out;
+
+    /* gap: 0.25rem; */
+    /* margin: 1rem 0; */
+    /* border: 1px solid; */
+    /* @apply border-gray-200 dark:border-gray-800; */
+    border-radius: 0.5rem;
+    /* @apply py-2; */
+    list-style-type: none;
 
     > button {
+      /* position: absolute; */
+      /* left: 0; put arrow in bullet spot */
+      padding-left: 0rem; /* spacing before text */
+      background: transparent;
+      border: none;
       align-items: center;
       background: transparent;
       border-radius: 4px;
       display: flex;
-      font-size: 0.625rem;
+      font-size: 0.8rem;
       height: 1.25rem;
       justify-content: center;
       line-height: 1;
-      margin-top: 0.1rem;
-      padding: 0;
-      width: 2rem;
+      margin-top: 0.11em;
+      width: 1.5rem;
 
       &:hover {
-        @apply bg-gray-200 dark:bg-gray-900;
+        @apply bg-gray-200 dark:bg-gray-800;
       }
 
       &::before {
@@ -327,22 +352,24 @@ body,
 
     &.is-open > button::before {
       transform: rotate(90deg);
+      @apply transition-all duration-200 ease-in-out;
     }
 
     > div {
+      margin-left: 0.5rem;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      /* gap: 1rem; */
       width: 100%;
 
-      > [data-type="detailsContent"] > :last-child {
+      /* > [data-type="detailsContent"] > :last-child {
         margin-bottom: 0.5rem;
-      }
+      } */
     }
 
-    .details {
+    /* .details {
       margin: 0.5rem 0;
-    }
+    } */
   }
 }
 

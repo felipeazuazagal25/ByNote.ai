@@ -19,7 +19,7 @@ export default function ProjectLayout() {
   const params = useParams();
 
   return (
-    <Card className="w-full mr-5">
+    <Card className="w-full mr-5 dark:bg-dark-bg dark:text-dark-text">
       <Outlet context={{ project }} key={params.noteId} />
     </Card>
   );
